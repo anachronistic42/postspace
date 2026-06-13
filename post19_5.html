@@ -1,0 +1,1342 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Прогулки по постпространству — Питчинг</title>
+<style>
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  :root {
+    --bg: #14110c;
+    --bg2: #1c1810;
+    --accent: #c8a24a;
+    --accent2: #a8442a;
+    --text: #e8ddc4;
+    --muted: #8a8064;
+    --border: rgba(200, 162, 74, 0.25);
+    --paper: #d8cba8;
+  }
+
+  body {
+    font-family: 'Courier New', 'Times New Roman', serif;
+    background: var(--bg);
+    color: var(--text);
+    overflow: hidden;
+  }
+
+  /* -------------------- ФОНОВЫЕ СЛОИ -------------------- */
+  .bg-layer {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    transition: opacity 1s ease;
+  }
+
+  .bg-stagnation {
+    background: radial-gradient(ellipse at 30% 20%, rgba(168, 68, 42, 0.18), transparent 55%),
+                radial-gradient(ellipse at 75% 80%, rgba(200, 162, 74, 0.12), transparent 50%),
+                linear-gradient(160deg, #1c1810, #14110c);
+    animation: stagnationFlow 24s ease-in-out infinite alternate;
+  }
+  @keyframes stagnationFlow {
+    0% { background-position: 0% 0%, 100% 100%, 0 0; filter: hue-rotate(0deg) brightness(1); }
+    100% { background-position: 20% 15%, 80% 85%, 0 0; filter: hue-rotate(-8deg) brightness(1.05); }
+  }
+
+  .bg-fog {
+    background: linear-gradient(180deg, #2a2820, #181510 60%, #0e0c08);
+  }
+  .bg-fog::before,
+  .bg-fog::after {
+    content: "";
+    position: absolute;
+    inset: -40%;
+    background: radial-gradient(circle at center, rgba(138, 128, 100, 0.10), transparent 60%);
+    animation: fogDrift 40s linear infinite;
+  }
+  .bg-fog::after {
+    animation-duration: 60s;
+    animation-direction: reverse;
+    opacity: 0.7;
+  }
+  @keyframes fogDrift {
+    0% { transform: translate(-10%, -5%) scale(1.1); }
+    50% { transform: translate(10%, 5%) scale(1.3); }
+    100% { transform: translate(-10%, -5%) scale(1.1); }
+  }
+
+  .bg-panels {
+    background: linear-gradient(180deg, #2a2418, #14110c 70%);
+    overflow: hidden;
+  }
+  .bg-panels::before {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 55%;
+    background-image: linear-gradient(90deg, rgba(13, 10, 6, 0.9) 0 8%, transparent 8% 10%,
+                      rgba(13, 10, 6, 0.85) 10% 18%, transparent 18% 20%,
+                      rgba(13, 10, 6, 0.9) 20% 30%, transparent 30% 32%,
+                      rgba(13, 10, 6, 0.8) 32% 42%, transparent 42% 45%,
+                      rgba(13, 10, 6, 0.92) 45% 55%, transparent 55% 57%,
+                      rgba(13, 10, 6, 0.85) 57% 68%, transparent 68% 70%,
+                      rgba(13, 10, 6, 0.9) 70% 82%, transparent 82% 85%,
+                      rgba(13, 10, 6, 0.88) 85% 100%);
+    background-size: 200% 100%;
+    animation: panelPan 80s linear infinite;
+  }
+  .bg-panels::after {
+    content: "";
+    position: absolute;
+    top: 8%;
+    left: 0;
+    right: 0;
+    height: 140px;
+    background: radial-gradient(ellipse at 70% 40%, rgba(200, 162, 74, 0.25), transparent 60%);
+    animation: moonGlow 30s ease-in-out infinite alternate;
+  }
+  @keyframes panelPan {
+    from { background-position: 0 0; }
+    to { background-position: -200% 0; }
+  }
+  @keyframes moonGlow {
+    0% { opacity: 0.4; }
+    100% { opacity: 0.9; }
+  }
+
+  .bg-film {
+    background: linear-gradient(135deg, #211d14, #161208);
+    animation: filmFlicker 5s steps(12) infinite;
+  }
+  @keyframes filmFlicker {
+    0% { filter: brightness(1); }
+    8% { filter: brightness(1.08); }
+    12% { filter: brightness(0.95); }
+    30% { filter: brightness(1.03); }
+    55% { filter: brightness(0.97); }
+    70% { filter: brightness(1.06); }
+    100% { filter: brightness(1); }
+  }
+  .bg-film::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.15) 0 2px, transparent 2px 5px);
+    animation: scan 8s linear infinite;
+    opacity: 0.4;
+  }
+  @keyframes scan {
+    from { background-position: 0 0; }
+    to { background-position: 0 100px; }
+  }
+
+  .bg-night {
+    background: linear-gradient(180deg, #0d1018, #14110c 80%);
+    overflow: hidden;
+  }
+  .bg-night::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image: radial-gradient(1px 1px at 20% 30%, rgba(232, 221, 196, 0.8), transparent),
+                      radial-gradient(1px 1px at 60% 20%, rgba(232, 221, 196, 0.6), transparent),
+                      radial-gradient(1px 1px at 80% 60%, rgba(232, 221, 196, 0.7), transparent),
+                      radial-gradient(1px 1px at 40% 70%, rgba(200, 162, 74, 0.5), transparent),
+                      radial-gradient(1px 1px at 90% 40%, rgba(232, 221, 196, 0.6), transparent),
+                      radial-gradient(1px 1px at 15% 80%, rgba(232, 221, 196, 0.5), transparent),
+                      radial-gradient(1px 1px at 50% 50%, rgba(232, 221, 196, 0.4), transparent);
+    background-size: 100% 100%;
+    animation: twinkle 6s ease-in-out infinite alternate;
+  }
+  @keyframes twinkle {
+    0% { opacity: 0.5; }
+    100% { opacity: 1; }
+  }
+
+  .bg-image-layer {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: cover;
+    pointer-events: none;
+  }
+
+  /* -------------------- ЭФФЕКТЫ ПЛЁНКИ -------------------- */
+  .grain {
+    position: fixed;
+    inset: 0;
+    z-index: 50;
+    pointer-events: none;
+    opacity: 0.08;
+    mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    animation: grainShift 0.4s steps(2) infinite;
+  }
+  @keyframes grainShift {
+    0% { transform: translate(0, 0); }
+    50% { transform: translate(-3%, 2%); }
+    100% { transform: translate(2%, -1%); }
+  }
+
+  .vignette {
+    position: fixed;
+    inset: 0;
+    z-index: 49;
+    pointer-events: none;
+    background: radial-gradient(ellipse at center, transparent 55%, rgba(0, 0, 0, 0.55) 100%);
+  }
+
+  .scratches {
+    position: fixed;
+    inset: 0;
+    z-index: 51;
+    pointer-events: none;
+    opacity: 0.10;
+    background-image: linear-gradient(90deg, transparent 49.8%, rgba(255, 255, 255, 0.5) 50%, transparent 50.2%),
+                      linear-gradient(90deg, transparent 19.9%, rgba(255, 255, 255, 0.3) 20%, transparent 20.1%),
+                      linear-gradient(90deg, transparent 79.9%, rgba(200, 200, 180, 0.25) 80%, transparent 80.1%);
+    animation: scratchMove 6s linear infinite;
+  }
+  @keyframes scratchMove {
+    from { transform: translateX(0); }
+    to { transform: translateX(40px); }
+  }
+
+  /* -------------------- СКРОЛЛ И СЛАЙДЫ -------------------- */
+  .scroll-container {
+    display: flex;
+    height: 100vh;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scroll-snap-type: x mandatory;
+    padding-top: 52px;
+  }
+  .scroll-container::-webkit-scrollbar {
+    height: 8px;
+  }
+  .scroll-container::-webkit-scrollbar-track {
+    background: #0d0a06;
+  }
+  .scroll-container::-webkit-scrollbar-thumb {
+    background: var(--accent2);
+    border-radius: 4px;
+  }
+
+  .section {
+    flex: 0 0 100vw;
+    width: 100vw;
+    height: calc(100vh - 52px);
+    scroll-snap-align: start;
+    position: relative;
+    border-right: 2px solid var(--border);
+    overflow: hidden;
+    background: repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.12) 0px, rgba(0, 0, 0, 0.12) 1px, transparent 2px, transparent 4px),
+                linear-gradient(160deg, rgba(28, 24, 22, 0.55), rgba(20, 17, 12, 0.55));
+  }
+  .section.drag-over {
+    box-shadow: inset 0 0 0 3px var(--accent);
+  }
+  .section::before,
+  .section::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 34px;
+    background-image: radial-gradient(circle, transparent 5px, #0d0a06 6px);
+    background-size: 34px 44px;
+    background-position: center;
+    opacity: 0.5;
+    pointer-events: none;
+    z-index: 2;
+  }
+  .section::before { left: 0; }
+  .section::after { right: 0; }
+
+  .section.slide-anim .items-layer {
+    animation: slideIn 0.5s ease;
+  }
+  @keyframes slideIn {
+    0% { opacity: 0; transform: translateX(40px) scale(0.98); }
+    100% { opacity: 1; transform: translateX(0) scale(1); }
+  }
+  .section.slide-anim-rev .items-layer {
+    animation: slideInRev 0.5s ease;
+  }
+  @keyframes slideInRev {
+    0% { opacity: 0; transform: translateX(-40px) scale(0.98); }
+    100% { opacity: 1; transform: translateX(0) scale(1); }
+  }
+
+  .items-layer {
+    position: absolute;
+    inset: 0;
+    z-index: 4;
+  }
+
+  /* -------------------- ПЕРЕТАСКИВАЕМЫЕ ЭЛЕМЕНТЫ -------------------- */
+  .draggable {
+    position: absolute;
+    z-index: 4;
+    will-change: transform;
+    transform-origin: center center;
+    cursor: grab;
+  }
+  body.view-mode .draggable {
+    transition: transform 0.3s cubic-bezier(0.2, 0.9, 0.4, 1.1), filter 0.2s;
+  }
+  .draggable.dragging-view {
+    transition: none !important;
+    cursor: grabbing;
+  }
+  .draggable.dragging-edit {
+    transition: none !important;
+    cursor: grabbing;
+    z-index: 999;
+  }
+  .draggable.view-pop {
+    animation: viewPop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  @keyframes viewPop {
+    0% { filter: brightness(1); }
+    35% { filter: brightness(1.18) saturate(1.1); }
+    100% { filter: brightness(1); }
+  }
+
+  /* -------------------- ФОТО -------------------- */
+  .photo {
+    width: 240px;
+    background: var(--paper);
+    padding: 12px 12px 34px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+    border-radius: 2px;
+    user-select: none;
+    transition: background 0.2s;
+  }
+  .photo.no-frame {
+    background: transparent !important;
+    padding: 0;
+    box-shadow: none;
+  }
+  .photo.no-frame .caption {
+    display: none;
+  }
+  .photo img {
+    width: 100%;
+    display: block;
+    filter: sepia(0.35) contrast(1.05) brightness(0.95) saturate(0.85);
+    pointer-events: none;
+  }
+  .photo .caption {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 8px;
+    text-align: center;
+    color: #4a4030;
+    font-family: 'Courier New', monospace;
+    font-size: 13px;
+    padding: 0 8px;
+    outline: none;
+  }
+
+  /* -------------------- ТЕКСТОВЫЕ БЛОКИ -------------------- */
+  .text-item {
+    cursor: grab;
+    user-select: none;
+    min-width: 60px;
+    max-width: 640px;
+    width: auto;
+    padding: 10px 16px;
+    color: var(--text);
+    font-family: 'Times New Roman', serif;
+    font-size: 26px;
+    line-height: 1.4;
+    text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.4);
+    border-radius: 5px;
+    word-break: break-word;
+    overflow-wrap: break-word;
+    box-sizing: border-box;
+  }
+  .text-item .text-body {
+    outline: none;
+    cursor: inherit;
+    width: 100%;
+    height: 100%;
+  }
+  body.view-mode .text-item:hover {
+    background: rgba(200, 162, 74, 0.10);
+    box-shadow: 0 0 0 1px var(--border), 0 6px 24px rgba(0, 0, 0, 0.4);
+  }
+  .text-item.kind-tag {
+    color: var(--accent2);
+    font-family: 'Courier New', monospace;
+    letter-spacing: 5px;
+    text-transform: uppercase;
+    font-size: 14px;
+    font-weight: bold;
+    text-shadow: none;
+  }
+  .text-item.kind-h1 {
+    font-size: 60px;
+    color: var(--accent);
+    font-weight: 700;
+    letter-spacing: 2px;
+    max-width: 90vw;
+  }
+  .text-item.kind-h2 {
+    font-size: 44px;
+    color: var(--accent);
+    font-weight: 700;
+    max-width: 90vw;
+  }
+  .text-item.kind-body {
+    font-family: 'Times New Roman', serif;
+    font-size: 19px;
+    line-height: 1.8;
+    max-width: 600px;
+  }
+  .text-item.kind-sub {
+    font-size: 20px;
+    color: var(--muted);
+    max-width: 600px;
+    text-shadow: none;
+  }
+
+  /* -------------------- ИНТЕРФЕЙС РЕДАКТОРА -------------------- */
+  #ctrlOverlay {
+    position: fixed;
+    inset: 0;
+    z-index: 500;
+    pointer-events: none;
+    display: none;
+  }
+  #ctrlOverlay.show {
+    display: block;
+  }
+  .ctrl-box {
+    position: absolute;
+    border: 1px dashed var(--accent);
+    border-radius: 3px;
+    pointer-events: none;
+  }
+  .handle {
+    position: absolute;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    border: 1px solid var(--accent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    cursor: pointer;
+    pointer-events: auto;
+    z-index: 510;
+    transform: translate(-50%, -50%);
+    background: #14110c;
+    color: var(--text);
+  }
+  .h-del {
+    background: var(--accent2);
+    color: #fff;
+  }
+  .h-scale {
+    cursor: nwse-resize;
+    background: var(--accent);
+    color: #14110c;
+  }
+  .h-rotate {
+    cursor: grab;
+    background: var(--accent);
+    color: #14110c;
+  }
+  .h-up,
+  .h-down {
+    background: var(--accent2);
+    color: #fff;
+  }
+  .h-up {
+    top: -30px;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+  .h-down {
+    bottom: -30px;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+
+  .item-toolbar,
+  .text-toolbar {
+    position: fixed;
+    z-index: 600;
+    background: rgba(13, 10, 6, 0.97);
+    border: 1px solid var(--accent);
+    border-radius: 8px;
+    padding: 8px 10px;
+    display: none;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+  }
+  .item-toolbar.show,
+  .text-toolbar.show {
+    display: flex;
+  }
+  .tool-btn,
+  .text-toolbar button,
+  .text-toolbar select {
+    background: #14110c;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 5px 8px;
+    font-size: 12px;
+    font-family: monospace;
+    cursor: pointer;
+    color: var(--text);
+  }
+  .tool-btn:hover,
+  .text-toolbar button:hover {
+    background: var(--accent);
+    color: #14110c;
+  }
+  .swatch-group {
+    display: flex;
+    gap: 5px;
+  }
+  .swatch {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    cursor: pointer;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+  }
+  .swatch.reset {
+    background: repeating-conic-gradient(#888 0 25%, #ccc 0 50%) 50% / 8px 8px;
+  }
+  .align-btn.active {
+    background: var(--accent);
+    color: #14110c;
+  }
+
+  /* -------------------- КНОПКИ УПРАВЛЕНИЯ СЛАЙДОМ -------------------- */
+  .section-controls {
+    position: absolute;
+    bottom: 30px;
+    left: 8vw;
+    z-index: 6;
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  body.view-mode .section-controls,
+  body.view-mode .hint-drag,
+  body.view-mode .add-section {
+    display: none !important;
+  }
+
+  .btn {
+    background: rgba(20, 17, 12, 0.85);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 9px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 13px;
+    font-family: 'Courier New', monospace;
+    letter-spacing: 1px;
+    transition: all 0.2s;
+  }
+  .btn:hover {
+    background: var(--accent);
+    color: #14110c;
+    border-color: var(--accent);
+  }
+  .btn.danger:hover {
+    background: var(--accent2);
+    border-color: var(--accent2);
+    color: #fff;
+  }
+  .btn.add-slide-btn {
+    background: var(--accent2);
+    border-color: var(--accent);
+    color: #fff;
+  }
+
+  /* -------------------- ВЕРХНЯЯ ПАНЕЛЬ -------------------- */
+  .topbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 52px;
+    background: rgba(13, 10, 6, 0.92);
+    border-bottom: 2px solid var(--accent2);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 20px;
+    gap: 20px;
+    z-index: 100;
+  }
+  .topbar .logo {
+    font-family: 'Times New Roman', serif;
+    font-weight: 700;
+    color: var(--accent);
+    letter-spacing: 3px;
+    font-size: 15px;
+    background: transparent;
+    border: none;
+    outline: none;
+    cursor: text;
+    padding: 2px 6px;
+    border-radius: 4px;
+    white-space: nowrap;
+  }
+  .topbar .logo:focus {
+    background: rgba(200, 162, 74, 0.2);
+    border: 1px solid var(--accent);
+  }
+  .mode-toggle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(20, 17, 12, 0.8);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 4px 6px;
+    margin: 0 auto;
+  }
+  .mode-toggle button {
+    border: none !important;
+    background: transparent !important;
+    padding: 5px 12px !important;
+    border-radius: 14px !important;
+    color: var(--muted) !important;
+    font-size: 12px;
+    letter-spacing: 1px;
+    cursor: pointer;
+  }
+  .mode-toggle button.active {
+    background: var(--accent) !important;
+    color: #14110c !important;
+    font-weight: bold;
+  }
+  .action-buttons {
+    display: flex;
+    gap: 10px;
+    flex-shrink: 0;
+  }
+  .action-buttons button {
+    background: rgba(20, 17, 12, 0.8);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 7px 14px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 13px;
+    font-family: 'Courier New', monospace;
+    letter-spacing: 1px;
+    font-weight: bold;
+  }
+  .action-buttons button:hover {
+    background: var(--accent2);
+    color: #fff;
+  }
+  .action-buttons button.active {
+    background: var(--accent);
+    color: #14110c;
+    border-color: var(--accent);
+  }
+  .nav-dots {
+    position: fixed;
+    bottom: 14px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 8px;
+    z-index: 100;
+  }
+  .nav-dots .dot {
+    width: 12px;
+    height: 12px;
+    border: 1px solid var(--accent2);
+    border-radius: 50%;
+    cursor: pointer;
+  }
+  .nav-dots .dot.active {
+    background: var(--accent);
+  }
+
+  .hint-drag {
+    position: absolute;
+    top: 70px;
+    right: 7vw;
+    z-index: 6;
+    color: var(--muted);
+    font-size: 12px;
+    font-style: italic;
+    letter-spacing: 1px;
+  }
+
+  .side-arrow {
+    position: fixed;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 56px;
+    height: 90px;
+    z-index: 90;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(13, 10, 6, 0);
+    border: none;
+    cursor: pointer;
+    color: var(--accent);
+    font-size: 38px;
+    opacity: 0;
+    transition: opacity 0.35s, background 0.35s, color 0.2s;
+    font-family: 'Times New Roman', serif;
+  }
+  .side-arrow:hover {
+    color: #fff;
+    background: rgba(168, 68, 42, 0.35);
+  }
+  .side-arrow.left {
+    left: 0;
+    border-radius: 0 8px 8px 0;
+  }
+  .side-arrow.right {
+    right: 0;
+    border-radius: 8px 0 0 8px;
+  }
+  body:hover .side-arrow {
+    opacity: 0.55;
+  }
+  .side-arrow:hover {
+    opacity: 1 !important;
+  }
+
+  .viewer {
+    position: fixed;
+    inset: 0;
+    z-index: 400;
+    background: rgba(8, 6, 4, 0.94);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    cursor: zoom-out;
+  }
+  .viewer.show {
+    display: flex;
+    animation: viewerFade 0.3s ease;
+  }
+  @keyframes viewerFade {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  .viewer img {
+    max-width: 88vw;
+    max-height: 88vh;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
+    border: 6px solid var(--paper);
+    filter: sepia(0.3) contrast(1.05);
+    animation: viewerZoom 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  @keyframes viewerZoom {
+    from { transform: scale(0.85); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+  }
+
+  .empty-hint {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: var(--muted);
+    font-size: 15px;
+    font-style: italic;
+    text-align: center;
+    pointer-events: none;
+  }
+  body.view-mode .empty-hint {
+    display: none;
+  }
+</style>
+</head>
+<body class="edit-mode">
+
+<div class="bg-layer bg-stagnation" id="bgLayer"></div>
+<div class="grain"></div>
+<div class="scratches"></div>
+<div class="vignette"></div>
+
+<div class="topbar">
+  <span class="logo" id="projectTitleSpan" contenteditable="true" spellcheck="false">ПОСТПРОСТРАНСТВО</span>
+  <div class="mode-toggle">
+    <button id="editModeBtn" class="active">РЕДАКТОР</button>
+    <button id="viewModeBtn">ПРОСМОТР</button>
+  </div>
+  <div class="action-buttons" id="viewActions" style="display: none;">
+    <button id="dragPersistBtn">ПЕРЕТАСКИВАНИЕ</button>
+    <button id="resetViewBtn">ВЕРНУТЬ</button>
+  </div>
+  <div class="action-buttons">
+    <button id="saveBtn">СОХРАНИТЬ</button>
+    <button id="loadBtn">ЗАГРУЗИТЬ</button>
+    <button id="exportHtmlBtn">ЭКСПОРТ HTML</button>
+  </div>
+</div>
+
+<button class="side-arrow left" id="leftArrow">‹</button>
+<button class="side-arrow right" id="rightArrow">›</button>
+
+<div class="scroll-container" id="scroller"></div>
+
+<div class="nav-dots" id="navDots"></div>
+
+<button class="btn add-slide-btn add-section" id="addSlideBtn">+ Слайд</button>
+
+<div id="ctrlOverlay">
+  <div class="ctrl-box"></div>
+  <div class="handle h-del" data-action="del" title="Удалить">✕</div>
+  <div class="handle h-scale" data-action="scale" title="Масштаб">⤡</div>
+  <div class="handle h-rotate" data-action="rotate" title="Поворот">↻</div>
+  <div class="handle h-up" data-action="up" title="Выше">▲</div>
+  <div class="handle h-down" data-action="down" title="Ниже">▼</div>
+</div>
+
+<div id="itemToolbar" class="item-toolbar"></div>
+<div id="textToolbar" class="text-toolbar"></div>
+
+<div class="viewer" id="viewer">
+  <img id="viewerImg" src="" alt="">
+</div>
+
+<input type="file" id="imageUpload" accept="image/*" style="display:none">
+<input type="file" id="loadFileInput" accept=".json" style="display:none">
+
+<script>
+/* ============================================================
+   ПОСТПРОСТРАНСТВО — ИСПРАВЛЕННАЯ ВЕРСИЯ (кнопка "Вернуть" работает идеально)
+   - При входе в просмотр сохраняется полная глубокая копия всех слайдов.
+   - При нажатии "Вернуть" текущий слайд полностью заменяется на сохранённую версию
+     (положение, масштаб, поворот, содержимое — всё возвращается как было).
+   - Добавление текста и фото работает без потери элементов.
+   ============================================================ */
+const BG_PRESETS = ['bg-stagnation','bg-fog','bg-panels','bg-film','bg-night'];
+const TEXT_COLORS = ['#e8ddc4','#c8a24a','#a8442a','#8a8064','#d8cba8','#ffffff','#6a8a5a','#5a7a9a'];
+const PLATE_COLORS = ['#14110c','#1c1810','#2a2418','#c8a24a','#a8442a','#d8cba8','#0d1018','#2a2820'];
+
+let state = { slides: [], current: 0, mode: 'edit', projectTitle: 'ПОСТПРОСТРАНСТВО' };
+let uid = 1;
+let selectedEl = null, selectedItem = null;
+let viewDragPersist = false;
+let fullSnapshotSlides = null;   // полная копия слайдов при входе в просмотр
+
+// --- трансформации ---
+function getTransform(el) {
+  return {
+    x: parseFloat(el.dataset.x || 0),
+    y: parseFloat(el.dataset.y || 0),
+    scale: parseFloat(el.dataset.scale || 1),
+    rot: parseFloat(el.dataset.rot || 0)
+  };
+}
+function applyTransform(el) {
+  const { x, y, scale, rot } = getTransform(el);
+  el.style.transform = `translate(${x}px, ${y}px) scale(${scale}) rotate(${rot}deg)`;
+}
+
+function defaultSlides() {
+  return [{
+    bgPreset: 'bg-stagnation',
+    bgImage: null, bgSize: 'cover', bgPos: 'center',
+    items: [
+      { id: 'el1', type:'text', kind:'tag', left:'8vw', top:'18vh', tx:0, ty:0, scale:1, rot:0, content:'Документальный проект', color:'', align:'left', plate:'', z:4 },
+      { id: 'el2', type:'text', kind:'h1', left:'8vw', top:'26vh', tx:0, ty:0, scale:1, rot:0, content:'ПРОГУЛКИ ПО<br>ПОСТПРОСТРАНСТВУ', color:'', align:'left', plate:'', z:4 },
+      { id: 'el3', type:'text', kind:'sub', left:'8vw', top:'56vh', tx:0, ty:0, scale:1, rot:0, content:'Эссе о памяти, времени и заброшенных местах', color:'', align:'left', plate:'', z:4 }
+    ]
+  }];
+}
+
+function buildItemElement(item, slideIdx) {
+  const div = document.createElement('div');
+  div.className = 'draggable';
+  div.dataset.id = item.id;
+  div.style.left = item.left;
+  div.style.top = item.top;
+  div.dataset.x = item.tx || 0;
+  div.dataset.y = item.ty || 0;
+  div.dataset.scale = item.scale || 1;
+  div.dataset.rot = item.rot || 0;
+  div.style.zIndex = item.z || 4;
+  applyTransform(div);
+
+  if (item.type === 'photo') {
+    div.innerHTML = `
+      <div class="photo ${item.noFrame ? 'no-frame' : ''}" style="${item.plate ? 'background:'+item.plate+';' : ''}">
+        <img src="${item.src}" alt="">
+        <div class="caption" contenteditable="false" spellcheck="false">${escapeHtml(item.content) || 'без названия'}</div>
+      </div>`;
+  } else {
+    const kindClass = item.kind ? `text-item kind-${item.kind}` : 'text-item';
+    let style = '';
+    if (item.color) style += `color:${item.color};`;
+    if (item.align) style += `text-align:${item.align};`;
+    if (item.plate) style += `background:${item.plate};`;
+    div.innerHTML = `<div class="${kindClass}" style="${style}"><div class="text-body" contenteditable="false" spellcheck="false">${item.content || 'Текст'}</div></div>`;
+  }
+  attachItemEvents(div, item, slideIdx);
+  return div;
+}
+
+function escapeHtml(str) {
+  if (!str) return '';
+  return str.replace(/[&<>]/g, function(m) {
+    if (m === '&') return '&amp;';
+    if (m === '<') return '&lt;';
+    if (m === '>') return '&gt;';
+    return m;
+  }).replace(/[\uD800-\uDBFF][\uDC00-\uDFFF]/g, function(c) {
+    return c;
+  });
+}
+
+function syncTransformToItem(el, item) {
+  const t = getTransform(el);
+  item.tx = t.x; item.ty = t.y; item.scale = t.scale; item.rot = t.rot;
+  item.z = parseInt(el.style.zIndex) || 4;
+}
+
+function attachItemEvents(el, item, slideIdx) {
+  el.addEventListener('pointerdown', (e) => {
+    if (e.button !== 0) return;
+    const isView = state.mode === 'view';
+    const isEditing = state.mode === 'edit';
+    if (isEditing && e.target.closest('.caption, .text-body') && e.target.isContentEditable) return;
+    e.preventDefault();
+    if (isView) startViewDrag(el, item, e);
+    else if (isEditing) startEditDrag(el, item, e);
+  });
+
+  el.addEventListener('dblclick', (e) => {
+    e.stopPropagation();
+    if (state.mode === 'view') {
+      if (item.type === 'photo') {
+        const img = el.querySelector('img');
+        if (img) openViewer(img.src);
+      } else {
+        el.classList.add('view-pop');
+        setTimeout(() => el.classList.remove('view-pop'), 400);
+      }
+    } else if (state.mode === 'edit') {
+      selectElement(el, item);
+    }
+  });
+
+  const editable = el.querySelector('[contenteditable]');
+  if (editable) {
+    editable.addEventListener('blur', () => {
+      editable.setAttribute('contenteditable', 'false');
+      item.content = editable.innerHTML;
+      syncTransformToItem(el, item);
+      autoSave();
+    });
+    editable.addEventListener('mousedown', (e) => e.stopPropagation());
+  }
+}
+
+function startEditDrag(el, item, e) {
+  if (selectedEl === el) deselect();
+  const startX = e.clientX, startY = e.clientY;
+  const tr = getTransform(el);
+  let moved = false;
+  el.classList.add('dragging-edit');
+  function move(ev) {
+    const dx = ev.clientX - startX, dy = ev.clientY - startY;
+    if (Math.abs(dx) > 3 || Math.abs(dy) > 3) moved = true;
+    el.dataset.x = tr.x + dx;
+    el.dataset.y = tr.y + dy;
+    applyTransform(el);
+  }
+  function up() {
+    document.removeEventListener('pointermove', move);
+    document.removeEventListener('pointerup', up);
+    el.classList.remove('dragging-edit');
+    if (moved) {
+      syncTransformToItem(el, item);
+      autoSave();
+    }
+  }
+  document.addEventListener('pointermove', move);
+  document.addEventListener('pointerup', up);
+}
+
+function startViewDrag(el, item, e) {
+  const isPersist = viewDragPersist;
+  const startX = e.clientX, startY = e.clientY;
+  const startTransform = getTransform(el);
+  let moved = false;
+  let lastX = startX, lastY = startY;
+
+  el.classList.add('dragging-view');
+  function move(ev) {
+    const dx = ev.clientX - startX, dy = ev.clientY - startY;
+    if (Math.abs(dx) > 3 || Math.abs(dy) > 3) moved = true;
+    lastX = ev.clientX;
+    lastY = ev.clientY;
+    const tilt = Math.max(-8, Math.min(8, dx * 0.04));
+    const tmpTx = startTransform.x + dx;
+    const tmpTy = startTransform.y + dy;
+    if (isPersist) {
+      el.dataset.x = tmpTx;
+      el.dataset.y = tmpTy;
+    }
+    const tmpScale = isPersist ? startTransform.scale : startTransform.scale * 1.02;
+    el.style.transform = `translate(${tmpTx}px, ${tmpTy}px) scale(${tmpScale}) rotate(${startTransform.rot + tilt}deg)`;
+  }
+  function up(ev) {
+    document.removeEventListener('pointermove', move);
+    document.removeEventListener('pointerup', up);
+    el.classList.remove('dragging-view');
+    if (moved) {
+      if (isPersist) {
+        const finalX = startTransform.x + (lastX - startX);
+        const finalY = startTransform.y + (lastY - startY);
+        el.dataset.x = finalX;
+        el.dataset.y = finalY;
+        applyTransform(el);
+        syncTransformToItem(el, item);
+        autoSave();
+      } else {
+        el.dataset.x = startTransform.x;
+        el.dataset.y = startTransform.y;
+        applyTransform(el);
+      }
+    } else {
+      el.classList.add('view-pop');
+      setTimeout(() => el.classList.remove('view-pop'), 400);
+    }
+  }
+  document.addEventListener('pointermove', move);
+  document.addEventListener('pointerup', up);
+}
+
+function selectElement(el, item) {
+  if (selectedEl) deselect();
+  selectedEl = el;
+  selectedItem = item;
+  el.classList.add('selected');
+  showCtrlOverlay(el);
+  if (item.type === 'photo') showPhotoToolbar(el, item);
+  else showTextToolbar(el, item);
+}
+function deselect() {
+  if (selectedEl) selectedEl.classList.remove('selected');
+  selectedEl = null; selectedItem = null;
+  document.getElementById('ctrlOverlay').classList.remove('show');
+  document.getElementById('itemToolbar').classList.remove('show');
+  document.getElementById('textToolbar').classList.remove('show');
+}
+function showCtrlOverlay(el) {
+  const overlay = document.getElementById('ctrlOverlay');
+  const box = overlay.querySelector('.ctrl-box');
+  const rect = el.getBoundingClientRect();
+  box.style.left = rect.left + 'px';
+  box.style.top = rect.top + 'px';
+  box.style.width = rect.width + 'px';
+  box.style.height = rect.height + 'px';
+  const hd = overlay.querySelector('.h-del'), hs = overlay.querySelector('.h-scale'), hr = overlay.querySelector('.h-rotate');
+  const hUp = overlay.querySelector('.h-up'), hDown = overlay.querySelector('.h-down');
+  hd.style.left = rect.right + 'px'; hd.style.top = rect.top + 'px';
+  hs.style.left = rect.right + 'px'; hs.style.top = rect.bottom + 'px';
+  hr.style.left = rect.left + 'px'; hr.style.top = rect.top + 'px';
+  hUp.style.left = rect.left + rect.width/2 + 'px'; hUp.style.top = rect.top - 12 + 'px';
+  hDown.style.left = rect.left + rect.width/2 + 'px'; hDown.style.top = rect.bottom + 12 + 'px';
+  overlay.classList.add('show');
+}
+
+document.querySelectorAll('#ctrlOverlay .handle').forEach(btn => {
+  btn.addEventListener('pointerdown', (e) => { e.stopPropagation(); });
+  if (btn.classList.contains('h-del')) btn.addEventListener('click', () => { if (selectedEl && selectedItem) deleteCurrentItem(); });
+  if (btn.classList.contains('h-scale')) btn.addEventListener('pointerdown', startScale);
+  if (btn.classList.contains('h-rotate')) btn.addEventListener('pointerdown', startRotate);
+  if (btn.classList.contains('h-up')) btn.addEventListener('click', () => changeZIndex(1));
+  if (btn.classList.contains('h-down')) btn.addEventListener('click', () => changeZIndex(-1));
+});
+
+function startScale(e) { if (!selectedEl) return; e.preventDefault(); const el = selectedEl, item = selectedItem; const rect = el.getBoundingClientRect(); const cx = rect.left + rect.width/2, cy = rect.top + rect.height/2; const startDist = Math.hypot(e.clientX - cx, e.clientY - cy); const startScale = getTransform(el).scale; function move(ev) { let s = startScale * (Math.hypot(ev.clientX - cx, ev.clientY - cy) / startDist); s = Math.max(0.2, Math.min(6, s)); el.dataset.scale = s; applyTransform(el); showCtrlOverlay(el); } function up() { document.removeEventListener('pointermove', move); document.removeEventListener('pointerup', up); syncTransformToItem(el, item); autoSave(); } document.addEventListener('pointermove', move); document.addEventListener('pointerup', up); }
+function startRotate(e) { if (!selectedEl) return; e.preventDefault(); const el = selectedEl, item = selectedItem; const rect = el.getBoundingClientRect(); const cx = rect.left + rect.width/2, cy = rect.top + rect.height/2; const startAng = Math.atan2(e.clientY - cy, e.clientX - cx) * 180/Math.PI; const startRot = getTransform(el).rot; function move(ev) { const ang = Math.atan2(ev.clientY - cy, ev.clientX - cx) * 180/Math.PI; el.dataset.rot = startRot + (ang - startAng); applyTransform(el); showCtrlOverlay(el); } function up() { document.removeEventListener('pointermove', move); document.removeEventListener('pointerup', up); syncTransformToItem(el, item); autoSave(); } document.addEventListener('pointermove', move); document.addEventListener('pointerup', up); }
+function changeZIndex(delta) { if (!selectedEl) return; let newZ = (parseInt(selectedEl.style.zIndex) || 4) + delta; newZ = Math.max(1, Math.min(100, newZ)); selectedEl.style.zIndex = newZ; if (selectedItem) selectedItem.z = newZ; autoSave(); }
+function deleteCurrentItem() { if (!selectedEl || !selectedItem) return; const slide = state.slides[state.current]; slide.items = slide.items.filter(i => i.id !== selectedItem.id); selectedEl.remove(); deselect(); autoSave(); if (slide.items.length === 0) { const itemsLayer = document.querySelector(`.section[data-index="${state.current}"] .items-layer`); if (itemsLayer && !itemsLayer.querySelector('.empty-hint')) { const hint = document.createElement('div'); hint.className = 'empty-hint'; hint.innerText = 'Пустой слайд\nПеретащите фото или добавьте текст'; itemsLayer.appendChild(hint); } } }
+
+function showPhotoToolbar(el, item) { const tb = document.getElementById('itemToolbar'); tb.innerHTML = ''; const photoDiv = el.querySelector('.photo'); const toggleBtn = document.createElement('button'); toggleBtn.textContent = photoDiv.classList.contains('no-frame') ? '🖼 Рамка' : '◻ Без рамки'; toggleBtn.className = 'tool-btn'; toggleBtn.onclick = () => { item.noFrame = !item.noFrame; photoDiv.classList.toggle('no-frame', item.noFrame); autoSave(); showPhotoToolbar(el, item); }; const editBtn = document.createElement('button'); editBtn.textContent = '✎ Редактировать текст'; editBtn.className = 'tool-btn'; editBtn.onclick = () => { const cap = el.querySelector('.caption'); if (cap) { cap.setAttribute('contenteditable', 'true'); cap.focus(); } }; const colorGroup = document.createElement('div'); colorGroup.className = 'swatch-group'; PLATE_COLORS.forEach(c => { const sw = document.createElement('div'); sw.className = 'swatch'; sw.style.background = c; sw.onclick = () => { item.plate = c; photoDiv.style.background = c; autoSave(); }; colorGroup.appendChild(sw); }); const reset = document.createElement('div'); reset.className = 'swatch reset'; reset.onclick = () => { item.plate = ''; photoDiv.style.background = ''; autoSave(); }; colorGroup.appendChild(reset); tb.appendChild(toggleBtn); tb.appendChild(editBtn); tb.appendChild(colorGroup); tb.classList.add('show'); const rect = el.getBoundingClientRect(); tb.style.left = rect.left + 'px'; tb.style.top = (rect.top - 50) + 'px'; }
+function showTextToolbar(el, item) { const tb = document.getElementById('textToolbar'); tb.innerHTML = `<select id="textKindSelect"><option value="tag">Тег</option><option value="h1">Заголовок H1</option><option value="h2">Заголовок H2</option><option value="body">Текст</option><option value="sub">Подпись</option></select><button id="editTextBtn" class="tool-btn">✎ Редактировать</button><div class="swatch-group" id="textColorSwatches"></div><div class="swatch-group" id="textPlateSwatches"></div><div><button class="align-btn" data-align="left">⬅</button><button class="align-btn" data-align="center">⬌</button><button class="align-btn" data-align="right">➡</button></div>`; const kindSelect = tb.querySelector('#textKindSelect'); kindSelect.value = item.kind || 'body'; kindSelect.onchange = () => { item.kind = kindSelect.value; const txtDiv = el.querySelector('.text-item'); txtDiv.className = `text-item kind-${item.kind}`; if (item.color) txtDiv.style.color = item.color; if (item.align) txtDiv.style.textAlign = item.align; if (item.plate) txtDiv.style.background = item.plate; autoSave(); }; const editBtn = tb.querySelector('#editTextBtn'); editBtn.onclick = () => { const body = el.querySelector('.text-body'); if (body) { body.setAttribute('contenteditable', 'true'); body.focus(); } }; const colorCont = tb.querySelector('#textColorSwatches'); TEXT_COLORS.forEach(c => { const sw = document.createElement('div'); sw.className = 'swatch'; sw.style.background = c; sw.onclick = () => { item.color = c; el.querySelector('.text-item').style.color = c; autoSave(); }; colorCont.appendChild(sw); }); const plateCont = tb.querySelector('#textPlateSwatches'); PLATE_COLORS.forEach(c => { const sw = document.createElement('div'); sw.className = 'swatch'; sw.style.background = c; sw.onclick = () => { item.plate = c; el.querySelector('.text-item').style.background = c; autoSave(); }; plateCont.appendChild(sw); }); tb.querySelectorAll('.align-btn').forEach(btn => { btn.classList.toggle('active', btn.dataset.align === (item.align || 'left')); btn.onclick = () => { item.align = btn.dataset.align; el.querySelector('.text-item').style.textAlign = item.align; autoSave(); }; }); tb.classList.add('show'); const rect = el.getBoundingClientRect(); tb.style.left = Math.max(10, rect.left) + 'px'; tb.style.top = (rect.top - 60) + 'px'; }
+
+function fullRender() {
+  const scroller = document.getElementById('scroller');
+  scroller.innerHTML = '';
+  state.slides.forEach((slide, idx) => {
+    const sec = document.createElement('div');
+    sec.className = `section ${slide.bgPreset || 'bg-stagnation'}`;
+    sec.dataset.index = idx;
+    const bgLayer = document.createElement('div');
+    bgLayer.className = 'bg-image-layer';
+    if (slide.bgImage) { bgLayer.style.backgroundImage = `url(${slide.bgImage})`; bgLayer.style.backgroundSize = slide.bgSize || 'cover'; bgLayer.style.backgroundPosition = slide.bgPos || 'center'; }
+    sec.appendChild(bgLayer);
+    const itemsLayer = document.createElement('div');
+    itemsLayer.className = 'items-layer';
+    slide.items.forEach(item => itemsLayer.appendChild(buildItemElement(item, idx)));
+    sec.appendChild(itemsLayer);
+    if (slide.items.length === 0) { const hint = document.createElement('div'); hint.className = 'empty-hint'; hint.innerText = 'Пустой слайд\nПеретащите фото или добавьте текст'; itemsLayer.appendChild(hint); }
+    const controls = document.createElement('div');
+    controls.className = 'section-controls';
+    controls.innerHTML = `
+      <button class="btn" onclick="addTextToCurrent()">+ Текст</button>
+      <label class="btn" style="cursor:pointer">+ Фото <input type="file" accept="image/*" multiple style="display:none" onchange="addPhotosFromInput(event, ${idx})"></label>
+      <button class="btn" onclick="cycleSlideBg(${idx})">Фон</button>
+      <button class="btn danger" onclick="deleteSlide(${idx})">Удалить слайд</button>
+      <button class="btn" onclick="addSlide()">+ Слайд</button>
+    `;
+    sec.appendChild(controls);
+    const hint = document.createElement('div'); hint.className = 'hint-drag'; hint.textContent = '↔ листайте колесом / стрелками'; sec.appendChild(hint);
+    sec.addEventListener('dragover', e => { e.preventDefault(); sec.classList.add('drag-over'); });
+    sec.addEventListener('dragleave', () => sec.classList.remove('drag-over'));
+    sec.addEventListener('drop', e => handleDropOnSlide(e, idx));
+    scroller.appendChild(sec);
+  });
+  renderDots();
+  updateGlobalBg();
+  document.getElementById('projectTitleSpan').innerText = state.projectTitle;
+  updatePersistButtonUI();
+  if (state.mode === 'edit') document.body.classList.add('edit-mode');
+  else document.body.classList.add('view-mode');
+}
+function renderDots() { const cont = document.getElementById('navDots'); cont.innerHTML = ''; state.slides.forEach((_, i) => { const dot = document.createElement('div'); dot.className = 'dot' + (i === state.current ? ' active' : ''); dot.onclick = () => goToSlide(i, true); cont.appendChild(dot); }); }
+function updateGlobalBg() { const slide = state.slides[state.current]; const layer = document.getElementById('bgLayer'); BG_PRESETS.forEach(b => layer.classList.remove(b)); layer.classList.add(slide.bgPreset || 'bg-stagnation'); }
+function goToSlide(idx, animate, dir = idx > state.current ? 1 : -1) { if (idx < 0) idx = state.slides.length-1; if (idx >= state.slides.length) idx = 0; state.current = idx; const scroller = document.getElementById('scroller'); scroller.scrollTo({ left: idx * window.innerWidth, behavior: animate ? 'smooth' : 'auto' }); const sec = document.querySelector(`.section[data-index="${idx}"]`); if (sec && animate) { sec.classList.remove('slide-anim', 'slide-anim-rev'); void sec.offsetWidth; sec.classList.add(dir < 0 ? 'slide-anim-rev' : 'slide-anim'); } updateGlobalBg(); renderDots(); deselect(); }
+function navSlide(dir) { goToSlide(state.current + dir, true, dir); }
+function autoSave() {}
+
+// ДОБАВЛЕНИЕ ТЕКСТА И ФОТО (без полной перерисовки)
+function addTextToCurrent() {
+  const slide = state.slides[state.current];
+  const newId = 'el' + (uid++);
+  const item = {
+    id: newId, type:'text', kind:'body',
+    left: '30vw', top: '40vh', tx:0, ty:0, scale:1, rot:0,
+    content: 'Новый текст', color:'', align:'left', plate:'', z:4
+  };
+  slide.items.push(item);
+  const currentSection = document.querySelector(`.section[data-index="${state.current}"]`);
+  if (currentSection) {
+    const itemsLayer = currentSection.querySelector('.items-layer');
+    if (itemsLayer) {
+      const hint = itemsLayer.querySelector('.empty-hint');
+      if (hint) hint.remove();
+      const newEl = buildItemElement(item, state.current);
+      itemsLayer.appendChild(newEl);
+    }
+  }
+  autoSave();
+}
+
+function addPhotosFromInput(event, slideIdx) {
+  const files = Array.from(event.target.files);
+  if (files.length === 0) return;
+  const currentSection = document.querySelector(`.section[data-index="${slideIdx}"]`);
+  const itemsLayer = currentSection ? currentSection.querySelector('.items-layer') : null;
+  if (!itemsLayer) return;
+  const hint = itemsLayer.querySelector('.empty-hint');
+  if (hint) hint.remove();
+
+  files.forEach((file, idx) => {
+    const reader = new FileReader();
+    reader.onload = e => {
+      const newId = 'el' + (uid++);
+      const item = {
+        id: newId, type:'photo', src: e.target.result,
+        left: (30 + idx*5) + 'vw', top: (30 + idx*5) + 'vh',
+        tx:0, ty:0, scale:1, rot:0,
+        content: 'без названия', noFrame: false, plate:'', z:4
+      };
+      state.slides[slideIdx].items.push(item);
+      const newEl = buildItemElement(item, slideIdx);
+      itemsLayer.appendChild(newEl);
+      autoSave();
+    };
+    reader.readAsDataURL(file);
+  });
+  event.target.value = '';
+}
+
+function handleDropOnSlide(e, slideIdx) {
+  e.preventDefault();
+  const sec = e.currentTarget;
+  sec.classList.remove('drag-over');
+  const rect = sec.getBoundingClientRect();
+  const dropX = e.clientX - rect.left, dropY = e.clientY - rect.top;
+  const files = Array.from(e.dataTransfer.files).filter(f => f.type.startsWith('image/'));
+  if (files.length === 0) return;
+  const itemsLayer = sec.querySelector('.items-layer');
+  if (!itemsLayer) return;
+  const hint = itemsLayer.querySelector('.empty-hint');
+  if (hint) hint.remove();
+
+  files.forEach((file, idx) => {
+    const reader = new FileReader();
+    reader.onload = ev => {
+      const newId = 'el' + (uid++);
+      const item = {
+        id: newId, type:'photo', src: ev.target.result,
+        left: (dropX + idx*20) + 'px', top: (dropY + idx*20) + 'px',
+        tx:0, ty:0, scale:1, rot:0,
+        content: 'без названия', noFrame: false, plate:'', z:4
+      };
+      state.slides[slideIdx].items.push(item);
+      const newEl = buildItemElement(item, slideIdx);
+      itemsLayer.appendChild(newEl);
+      autoSave();
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+function cycleSlideBg(idx) { const slide = state.slides[idx]; const cur = BG_PRESETS.indexOf(slide.bgPreset || 'bg-stagnation'); const next = (cur+1) % BG_PRESETS.length; slide.bgPreset = BG_PRESETS[next]; slide.bgImage = null; const sec = document.querySelector(`.section[data-index="${idx}"]`); if (sec) { BG_PRESETS.forEach(b => sec.classList.remove(b)); sec.classList.add(slide.bgPreset); } if (idx === state.current) updateGlobalBg(); }
+function deleteSlide(idx) { if (state.slides.length <= 1) return alert('Нельзя удалить последний слайд'); state.slides.splice(idx,1); if (state.current >= state.slides.length) state.current = state.slides.length-1; fullRender(); goToSlide(state.current, false); }
+function addSlide() { state.slides.push({ bgPreset:'bg-stagnation', bgImage:null, items: [] }); fullRender(); goToSlide(state.slides.length-1, true); }
+function saveProject() { const data = JSON.stringify({ slides: state.slides, uid, projectTitle: state.projectTitle }); const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([data], {type:'application/json'})); a.download = 'postprostranstvo.json'; a.click(); }
+function loadProject(file) { const reader = new FileReader(); reader.onload = e => { try { const data = JSON.parse(e.target.result); state.slides = data.slides; uid = data.uid || 1; state.projectTitle = data.projectTitle || 'ПОСТПРОСТРАНСТВО'; state.current = 0; fullRender(); goToSlide(0, false); if (state.mode === 'view') takeFullSnapshot(); } catch(err) { alert('Ошибка загрузки'); } }; reader.readAsText(file); }
+function exportHTML() { alert('Сохраните страницу через браузер: Ctrl+S'); }
+
+// --- ПОЛНЫЙ СНАПШОТ (глубокая копия всех слайдов) ---
+function takeFullSnapshot() {
+  fullSnapshotSlides = JSON.parse(JSON.stringify(state.slides));
+}
+
+// --- ВОССТАНОВЛЕНИЕ ТЕКУЩЕГО СЛАЙДА ИЗ СНАПШОТА ---
+function resetToSnapshot() {
+  if (!fullSnapshotSlides || fullSnapshotSlides.length === 0) return;
+  // Берём сохранённый слайд с тем же индексом
+  const savedSlide = fullSnapshotSlides[state.current];
+  if (!savedSlide) return;
+  // Заменяем items текущего слайда
+  state.slides[state.current].items = JSON.parse(JSON.stringify(savedSlide.items));
+  // Обновляем фон (если нужно)
+  if (savedSlide.bgPreset) state.slides[state.current].bgPreset = savedSlide.bgPreset;
+  // Перерисовываем только текущий слайд
+  const currentSection = document.querySelector(`.section[data-index="${state.current}"]`);
+  if (currentSection) {
+    const itemsLayer = currentSection.querySelector('.items-layer');
+    if (itemsLayer) {
+      itemsLayer.innerHTML = '';
+      const slide = state.slides[state.current];
+      if (slide.items.length === 0) {
+        const hint = document.createElement('div');
+        hint.className = 'empty-hint';
+        hint.innerText = 'Пустой слайд\nПеретащите фото или добавьте текст';
+        itemsLayer.appendChild(hint);
+      } else {
+        slide.items.forEach(item => {
+          itemsLayer.appendChild(buildItemElement(item, state.current));
+        });
+      }
+    }
+    // Обновляем классы фона
+    BG_PRESETS.forEach(b => currentSection.classList.remove(b));
+    currentSection.classList.add(state.slides[state.current].bgPreset || 'bg-stagnation');
+  }
+  updateGlobalBg();
+  autoSave();
+}
+
+function setMode(mode) {
+  state.mode = mode;
+  document.body.classList.toggle('edit-mode', mode === 'edit');
+  document.body.classList.toggle('view-mode', mode === 'view');
+  document.getElementById('editModeBtn').classList.toggle('active', mode === 'edit');
+  document.getElementById('viewModeBtn').classList.toggle('active', mode === 'view');
+  const viewActions = document.getElementById('viewActions');
+  if (mode === 'view') {
+    viewActions.style.display = 'flex';
+    takeFullSnapshot();           // запоминаем всё при входе в просмотр
+  } else {
+    viewActions.style.display = 'none';
+    viewDragPersist = false;
+    updatePersistButtonUI();
+  }
+  deselect();
+}
+function updatePersistButtonUI() {
+  const btn = document.getElementById('dragPersistBtn');
+  if (viewDragPersist) btn.classList.add('active');
+  else btn.classList.remove('active');
+}
+function toggleDragPersist() { viewDragPersist = !viewDragPersist; updatePersistButtonUI(); autoSave(); }
+function openViewer(src) { const viewer = document.getElementById('viewer'); document.getElementById('viewerImg').src = src; viewer.classList.add('show'); }
+
+document.getElementById('viewer').addEventListener('click', () => document.getElementById('viewer').classList.remove('show'));
+document.getElementById('leftArrow').onclick = () => navSlide(-1);
+document.getElementById('rightArrow').onclick = () => navSlide(1);
+document.getElementById('addSlideBtn').onclick = addSlide;
+document.getElementById('saveBtn').onclick = saveProject;
+document.getElementById('loadBtn').onclick = () => document.getElementById('loadFileInput').click();
+document.getElementById('loadFileInput').onchange = e => { if(e.target.files[0]) loadProject(e.target.files[0]); e.target.value=''; };
+document.getElementById('exportHtmlBtn').onclick = exportHTML;
+document.getElementById('editModeBtn').onclick = () => setMode('edit');
+document.getElementById('viewModeBtn').onclick = () => setMode('view');
+
+const persistBtn = document.getElementById('dragPersistBtn');
+if (persistBtn) persistBtn.onclick = toggleDragPersist;
+const resetBtn = document.getElementById('resetViewBtn');
+if (resetBtn) resetBtn.onclick = resetToSnapshot;
+
+const titleSpan = document.getElementById('projectTitleSpan');
+titleSpan.addEventListener('blur', () => { state.projectTitle = titleSpan.innerText; autoSave(); });
+
+document.addEventListener('keydown', (e) => {
+  if (state.mode === 'view' && e.key === 'Control') {
+    e.preventDefault();
+    toggleDragPersist();
+  }
+});
+
+let wheelAccum = 0, wheelLock = false;
+document.addEventListener('wheel', e => { const ae = document.activeElement; if (ae && ae.getAttribute('contenteditable') === 'true') return; e.preventDefault(); if (wheelLock) return; wheelAccum += (Math.abs(e.deltaX) > Math.abs(e.deltaY)) ? e.deltaX : e.deltaY; if (Math.abs(wheelAccum) > 200) { const dir = wheelAccum > 0 ? 1 : -1; wheelAccum = 0; wheelLock = true; navSlide(dir); setTimeout(() => wheelLock = false, 500); } clearTimeout(window.wheelTimer); window.wheelTimer = setTimeout(() => wheelAccum = 0, 150); }, { passive: false });
+
+document.addEventListener('keydown', e => {
+  const activeEl = document.activeElement;
+  const isEditable = activeEl && (activeEl.getAttribute('contenteditable') === 'true' || activeEl.tagName === 'INPUT' || activeEl.tagName === 'TEXTAREA');
+  if (isEditable) return;
+  if (e.key === 'ArrowLeft') navSlide(-1);
+  if (e.key === 'ArrowRight') navSlide(1);
+  if (e.key === 'Delete' && selectedEl && state.mode === 'edit') deleteCurrentItem();
+  if (e.key === 'Escape') deselect();
+});
+
+document.addEventListener('mousedown', e => {
+  if (state.mode !== 'edit') return;
+  if (!e.target.closest('.draggable') && !e.target.closest('#ctrlOverlay') && !e.target.closest('.item-toolbar') && !e.target.closest('.text-toolbar'))
+    deselect();
+});
+
+state.slides = defaultSlides();
+state.projectTitle = 'ПОСТПРОСТРАНСТВО';
+fullRender();
+goToSlide(0, false);
+</script>
+</body>
+</html>
