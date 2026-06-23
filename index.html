@@ -1470,6 +1470,7 @@
             overflow: hidden;
             z-index: 9999;
             pointer-events: auto;
+            will-change: transform;
         }
         .webmeji-container img {
             width: 100%;
@@ -2082,13 +2083,13 @@
 
         function applyTransform(el) {
             const { x, y, scale, rot } = getTransform(el);
-            el.style.transform = `translate(${x}px, ${y}px) scale(${scale}) rotate(${rot}deg)`;
+            el.style.transform = `translate3d(${x}px, ${y}px, 0) scale(${scale}) rotate(${rot}deg)`;
         }
 
         function refreshElementSharpness(el) {
             requestAnimationFrame(() => {
                 const { x, y, scale, rot } = getTransform(el);
-                el.style.transform = `translate(${x}px, ${y}px) scale(${scale}) rotate(${rot}deg)`;
+                el.style.transform = `translate3d(${x}px, ${y}px, 0) scale(${scale}) rotate(${rot}deg)`;
             });
         }
 
@@ -2441,7 +2442,7 @@
                 }
                 const tmpScale = isPersist ? startTransform.scale : startTransform.scale * 1.02;
                 el.style.transform =
-                    `translate(${tmpTx}px, ${tmpTy}px) scale(${tmpScale}) rotate(${startTransform.rot + tilt}deg)`;
+                    `translate3d(${tmpTx}px, ${tmpTy}px, 0) scale(${tmpScale}) rotate(${startTransform.rot + tilt}deg)`;
             }
 
             function up(ev) {
@@ -4542,6 +4543,9 @@
                 this.currentAction = this.actionSequence[this.currentActionIndex];
                 this.startAction(this.currentAction);
 
+                // Оптимизация: ограничим частоту обновления до 30fps
+                this._lastUpdateTime = 0;
+
                 this.animate = this.animate.bind(this);
                 this.animationFrameId = requestAnimationFrame(this.animate);
 
@@ -5277,6 +5281,13 @@
             }
 
             animate(time) {
+                // Оптимизация: обновляем не чаще 30 раз в секунду
+                if (time - this._lastUpdateTime < 33) {
+                    this.animationFrameId = requestAnimationFrame(this.animate);
+                    return;
+                }
+                this._lastUpdateTime = time;
+
                 if (!this.lastTime) this.lastTime = time;
                 const delta = (time - this.lastTime) / 1000;
                 this.lastTime = time;
