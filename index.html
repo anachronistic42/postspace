@@ -4,9 +4,24 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
     <title>Постпространство</title>
+    <!-- ======================== СНИМОК ЧИСТОГО ШАБЛОНА СТРАНИЦЫ ======================== -->
+    <!-- Загружаем СЫРОЙ исходный HTML этой же страницы (как он лежит на диске/сервере),
+         пока проект ещё не отрендерен в DOM. Это нужно для функции «Сохранить для Pages»,
+         чтобы она сохраняла именно чистый шаблон приложения, а не текущий тяжёлый DOM
+         с уже отрисованными слайдами и встроенными медиаданными. -->
+    <script>
+        (function() {
+            fetch(location.href, { cache: 'no-cache' })
+                .then(function(r) { return r.ok ? r.text() : null; })
+                .then(function(text) { if (text) window.__PRISTINE_HTML__ = text; })
+                .catch(function() {});
+        })();
+    </script>
     <!-- PDF.js -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js">
     </script>
+    <!-- html2canvas для скриншотов слайдов -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script>
         if (window.pdfjsLib) {
             pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
@@ -2780,9 +2795,27 @@
             border-bottom: 1px solid var(--border);
             padding-bottom: 4px;
             cursor: grab;
+            padding-right: 20px;
         }
         #sizePopup .popup-title:active {
             cursor: grabbing;
+        }
+        #sizePopup .popup-close {
+            position: absolute;
+            top: 10px;
+            right: 12px;
+            background: none;
+            border: none;
+            color: var(--muted);
+            font-size: 18px;
+            cursor: pointer;
+            transition: color 0.2s;
+            font-family: monospace;
+            padding: 0 4px;
+            line-height: 1;
+        }
+        #sizePopup .popup-close:hover {
+            color: var(--accent2);
         }
         #sizePopup .popup-size {
             font-size: 24px;
@@ -3445,6 +3478,7 @@
 
     <!-- Alt+Q попап (с контролами размера и перфораций) -->
     <div id="sizePopup">
+        <button class="popup-close" id="sizePopupClose" type="button" aria-label="Закрыть">✕</button>
         <div class="popup-title">📦 ОЦЕНКА ВЕСА ПРОЕКТА</div>
         <div class="popup-size" id="popupSize">—</div>
         <div class="popup-detail" id="popupDetail">—</div>
@@ -3484,9 +3518,12 @@
         <div class="popup-hint">Если пароль не установлен — используется «одуванчик»</div>
 
         <div class="popup-divider"></div>
-
+<!-- КНОПКА СКАЧИВАНИЯ ВСЕХ МЕДИА АРХИВОМ -->
+        <button id="downloadAllMediaBtn" class="popup-btn" style="background: var(--accent); color: #14110c; border-color: var(--accent); font-weight: bold;">Скачать все медиа архивом</button>
         <!-- КНОПКА ЭКСПОРТА ПРОСМОТРОВОГО HTML -->
         <button id="exportHtmlBtn" class="popup-btn" style="display: none; background: var(--accent2); color: #fff; border-color: var(--accent);">Экспорт просмотрового HTML</button>
+        <!-- КНОПКА СОХРАНЕНИЯ ДЛЯ PAGES (медиа + лёгкий project.json + index.html) -->
+        <button id="savePagesBtn" class="popup-btn" style="background: var(--accent2); color: #fff; border-color: var(--accent);">Сохранить для Pages</button>
 
         <div class="popup-divider"></div>
         <div class="popup-hint" style="text-align: center; margin-top: 6px; opacity: 0.6;">Разработчик приложения - Александр Тумали</div>
@@ -3645,15 +3682,22 @@
             const dots = document.getElementById('navDots');
             const tbCenter = document.querySelector('.topbar-center');
             const tbRight = document.querySelector('.topbar-right');
+            const saveBtnEl = document.getElementById('saveBtn');
+            const loadBtnEl = document.getElementById('loadBtn');
 
             // Сброс до стандартного состояния
             charsBtn.style.display = '';
             dots.style.display = '';
-            // Если мы в просмотровом HTML и доступ к редактору не получен — скрываем tbCenter
+            // Если мы в просмотровом HTML (встроенном или автозагруженном) и доступ к редактору не получен —
+            // скрываем tbCenter (переключатель режимов), а также кнопки «Сохранить» и «Загрузить»
             if (window.__EMBEDDED_PROJECT__ && state.mode === 'view' && !editorAccessGranted) {
                 tbCenter.style.display = 'none';
+                if (saveBtnEl) saveBtnEl.style.display = 'none';
+                if (loadBtnEl) loadBtnEl.style.display = 'none';
             } else {
                 tbCenter.style.display = '';
+                if (saveBtnEl) saveBtnEl.style.display = '';
+                if (loadBtnEl) loadBtnEl.style.display = '';
             }
             tbRight.style.display = '';
 
@@ -3687,6 +3731,14 @@
             const title = popup.querySelector('.popup-title');
             let isDragging = false;
             let offsetX, offsetY;
+
+            const closeBtn = document.getElementById('sizePopupClose');
+            if (closeBtn) {
+                closeBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    if (popup.classList.contains('show')) toggleSizePopup();
+                });
+            }
 
             title.addEventListener('mousedown', (e) => {
                 if (e.button !== 0) return;
@@ -6709,28 +6761,77 @@
             updateSizePopupIfVisible();
         }
 
-        function saveProject() {
-            const creaturesData = window.WebmejiManager ? window.WebmejiManager.getCreaturesDataForSave() : null;
-            const cf = document.getElementById('cinematicFrame');
-            const data = JSON.stringify({
-                slides: state.slides,
-                uid,
-                projectTitle: state.projectTitle,
-                creatures: creaturesData,
-                slideW: slideW,
-                slideH: slideH,
-                perfVisible: perfVisible,
-                cinematicVisible: cf ? cf.classList.contains('show') : true,
-                editorRestricted: editorRestricted,
-                editorPassword: editorPassword || '',
-                imgEffectsLevel: imgEffectsLevel
-            });
-            const a = document.createElement('a');
-            a.href = URL.createObjectURL(new Blob([data], { type: 'application/json' }));
-            let filename = (state.projectTitle || "postprostranstvo").replace(/[\\/:*?"<>|]/g, '_').trim();
-            if (!filename) filename = "postprostranstvo";
-            a.download = filename + ".pstspc";
-            a.click();
+        // Приводит src/cover/poster элемента к встроенному base64 data URL,
+        // если сейчас там путь/URL (например, после автозагрузки лёгкого project.json)
+        function urlToDataURL(url) {
+            return fetch(url)
+                .then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.blob(); })
+                .then(blob => new Promise((resolve, reject) => {
+                    const reader = new FileReader();
+                    reader.onload = () => resolve(reader.result);
+                    reader.onerror = () => reject(reader.error);
+                    reader.readAsDataURL(blob);
+                }));
+        }
+
+        async function embedExternalMediaInSlides(slides) {
+            for (const slide of slides) {
+                for (const item of slide.items) {
+                    if (item.src && typeof item.src === 'string' && !item.src.startsWith('data:')) {
+                        try { item.src = await urlToDataURL(item.src); } catch (e) { console.error('Не удалось встроить файл:', item.src, e); }
+                    }
+                    if (item.cover && typeof item.cover === 'string' && !item.cover.startsWith('data:')) {
+                        try { item.cover = await urlToDataURL(item.cover); } catch (e) { console.error('Не удалось встроить обложку:', item.cover, e); }
+                    }
+                    if (item.poster && typeof item.poster === 'string' && !item.poster.startsWith('data:')) {
+                        try { item.poster = await urlToDataURL(item.poster); } catch (e) { console.error('Не удалось встроить постер:', item.poster, e); }
+                    }
+                }
+            }
+            return slides;
+        }
+
+        async function saveProject() {
+            const overlay = document.getElementById('loadingOverlay');
+            const loaderText = overlay ? overlay.querySelector('.loader-text') : null;
+            const originalText = loaderText ? loaderText.textContent : '';
+            try {
+                if (overlay) overlay.classList.add('show');
+                if (loaderText) loaderText.textContent = 'Сохранение проекта...';
+
+                // Клонируем слайды, чтобы не трогать текущее состояние, и встраиваем
+                // все внешние (не base64) материалы прямо в файл проекта
+                const slidesForSave = JSON.parse(JSON.stringify(state.slides));
+                await embedExternalMediaInSlides(slidesForSave);
+
+                const creaturesData = window.WebmejiManager ? window.WebmejiManager.getCreaturesDataForSave() : null;
+                const cf = document.getElementById('cinematicFrame');
+                const data = JSON.stringify({
+                    slides: slidesForSave,
+                    uid,
+                    projectTitle: state.projectTitle,
+                    creatures: creaturesData,
+                    slideW: slideW,
+                    slideH: slideH,
+                    perfVisible: perfVisible,
+                    cinematicVisible: cf ? cf.classList.contains('show') : true,
+                    editorRestricted: editorRestricted,
+                    editorPassword: editorPassword || '',
+                    imgEffectsLevel: imgEffectsLevel
+                });
+                const a = document.createElement('a');
+                a.href = URL.createObjectURL(new Blob([data], { type: 'application/json' }));
+                let filename = (state.projectTitle || "postprostranstvo").replace(/[\\/:*?"<>|]/g, '_').trim();
+                if (!filename) filename = "postprostranstvo";
+                a.download = filename + ".pstspc";
+                a.click();
+            } catch (err) {
+                console.error(err);
+                if (typeof showNotification === 'function') showNotification('Ошибка при сохранении проекта', 'error', 3000);
+            } finally {
+                if (overlay) overlay.classList.remove('show');
+                if (loaderText) loaderText.textContent = originalText;
+            }
         }
 
         // ===== ОБРАБОТКА ЗАГРУЖЕННЫХ ДАННЫХ (общая функция) =====
@@ -6864,7 +6965,10 @@
             }
 
             if (mode === 'edit' && !editorRestricted) editorAccessGranted = true;
-            if (mode === 'view') editorAccessGranted = false;
+            // Примечание: доступ к редактору (editorAccessGranted) больше НЕ сбрасывается
+            // здесь при переключении в просмотр. Однажды введённый пароль разблокирует
+            // кнопки на всё время сессии — скрытие кнопок происходит только при
+            // активации галочки «ограничить вход в редактор» (см. editorRestrictToggle).
 
             state.mode = mode;
 
@@ -7253,6 +7357,20 @@
             return bytes;
         }
 
+        // Универсальная загрузка содержимого файла: работает как с base64 data URL
+        // (файл встроен в проект), так и с обычным путём/URL (например, при автозагрузке
+        // из лёгкого project.json, где документы лежат рядом в папке media)
+        function resolveItemArrayBuffer(src) {
+            if (!src) return Promise.reject(new Error('Пустой src'));
+            if (src.startsWith('data:')) {
+                return Promise.resolve(dataUrlToUint8(src).buffer);
+            }
+            return fetch(src).then(r => {
+                if (!r.ok) throw new Error('HTTP ' + r.status);
+                return r.arrayBuffer();
+            });
+        }
+
         function openPdfViewer(item) {
             if (!window.pdfjsLib) { alert('PDF.js не загружен'); return; }
             pdfV.item = item;
@@ -7268,7 +7386,9 @@
             viewer.classList.add('show');
             buildPdfThemes();
             applyPdfColors();
-            pdfjsLib.getDocument({ data: dataUrlToUint8(item.src) }).promise.then(pdf => {
+            resolveItemArrayBuffer(item.src).then(buffer => {
+                return pdfjsLib.getDocument({ data: new Uint8Array(buffer) }).promise;
+            }).then(pdf => {
                 pdfV.doc = pdf;
                 pdfV.total = pdf.numPages;
                 renderPdfPage();
@@ -7483,27 +7603,37 @@
             buildDocThemes();
 
             if (type === 'txt') {
-                try { const raw = atob(docV2.data.split(',')[1]);
+                resolveItemArrayBuffer(docV2.data).then(buffer => {
+                    const bytes = new Uint8Array(buffer);
+                    let raw = '';
+                    for (let i = 0; i < bytes.length; i++) raw += String.fromCharCode(bytes[i]);
                     const text = decodeURIComponent(escape(raw));
-                    paginateText(text, true); } catch (e) { paginateText('Не удалось прочитать текстовый файл.', true); }
-                renderDocPage();
+                    paginateText(text, true);
+                    renderDocPage();
+                }).catch(() => { paginateText('Не удалось прочитать текстовый файл.', true);
+                    renderDocPage(); });
             } else if (type === 'docx') {
-                const arrayBuffer = dataUrlToUint8(docV2.data).buffer;
-                if (window.mammoth) {
-                    mammoth.convertToHtml({ arrayBuffer })
-                        .then(result => { paginateHtml(result.value);
-                            renderDocPage(); })
-                        .catch(() => { paginateText('Не удалось прочитать .docx файл.', true);
-                            renderDocPage(); });
-                } else { paginateText('Библиотека для .docx не загружена.', true);
-                    renderDocPage(); }
+                resolveItemArrayBuffer(docV2.data).then(arrayBuffer => {
+                    if (window.mammoth) {
+                        return mammoth.convertToHtml({ arrayBuffer })
+                            .then(result => { paginateHtml(result.value);
+                                renderDocPage(); })
+                            .catch(() => { paginateText('Не удалось прочитать .docx файл.', true);
+                                renderDocPage(); });
+                    } else { paginateText('Библиотека для .docx не загружена.', true);
+                        renderDocPage(); }
+                }).catch(() => { paginateText('Не удалось прочитать .docx файл.', true);
+                    renderDocPage(); });
             } else {
-                try {
-                    const raw = atob(docV2.data.split(',')[1]);
+                resolveItemArrayBuffer(docV2.data).then(buffer => {
+                    const bytes = new Uint8Array(buffer);
+                    let raw = '';
+                    for (let i = 0; i < bytes.length; i++) raw += String.fromCharCode(bytes[i]);
                     const text = raw.replace(/[^\x09\x0A\x0D\x20-\x7Eа-яА-ЯёЁ]/g, ' ').replace(/\s{3,}/g, '\n\n');
                     paginateText(text.trim() || 'Документ .doc — отображение ограничено.', true);
-                } catch (e) { paginateText('Не удалось прочитать .doc файл.', true); }
-                renderDocPage();
+                    renderDocPage();
+                }).catch(() => { paginateText('Не удалось прочитать .doc файл.', true);
+                    renderDocPage(); });
             }
             updateSizePopupIfVisible();
         }
@@ -8170,14 +8300,16 @@
                     toggleSizePopup();
                     return;
                 }
-                // В просмотровом HTML Alt+Q всегда показывает пароль
-                if (window.__EMBEDDED_PROJECT__) {
+                // В просмотровом HTML (встроенном или автозагруженном) первый Alt+Q запрашивает пароль,
+                // но повторно спрашивать его не нужно, пока доступ уже получен —
+                // до тех пор, пока не будет заново нажата галочка «ограничить вход в редактор»
+                if (window.__EMBEDDED_PROJECT__ && !editorAccessGranted) {
                     showPasswordModal('altq', () => {
                         toggleSizePopup();
                     });
                     return;
                 }
-                if (editorRestricted && editorPassword && editorPassword.trim() !== '') {
+                if (editorRestricted && !editorAccessGranted) {
                     showPasswordModal('altq', () => { toggleSizePopup(); });
                 } else {
                     toggleSizePopup();
@@ -8504,7 +8636,36 @@
                 }
             });
 
-            closeBtn.addEventListener('click', finishIntro);
+            // Крестик: закрывает стартовый экран, но, если рядом с страницей найден
+            // проект (project.json в репозитории или встроенный в HTML экспорт),
+            // всё равно автоматически его подгружает — как будто пользователь
+            // поймал кнопку «ЗАГРУЗИТЬ». Если проект не найден — просто закрываем
+            // заставку и переходим в пустой редактор/просмотр, как раньше.
+            let closeUsed = false;
+            closeBtn.addEventListener('click', () => {
+                if (closeUsed) return;
+                closeUsed = true;
+                window._introLoading = true;
+
+                function applyAndFinish(project) {
+                    if (project) {
+                        try { processLoadedData(project, false, true); } catch (err) { console.error(err); }
+                    }
+                    finishIntro();
+                }
+
+                if (window.__EMBEDDED_PROJECT__) {
+                    // Проект уже найден (встроен в HTML или подгружен из project.json)
+                    applyAndFinish(window.__EMBEDDED_PROJECT__);
+                } else if (window._projectAutoLoadPromise) {
+                    // Автозагрузка ещё может выполняться — дожидаемся результата
+                    window._projectAutoLoadPromise.then(applyAndFinish).catch(() => applyAndFinish(null));
+                } else {
+                    // Автозагрузки нет вовсе (например, это не viewer-экспорт) —
+                    // просто закрываем заставку без загрузки проекта
+                    applyAndFinish(null);
+                }
+            });
         })();
 
         // ===== УПРАВЛЕНИЕ СЛАЙДАМИ (МЕНЕДЖЕР) =====
@@ -8808,7 +8969,13 @@
 
             toggle.addEventListener('change', () => {
                 editorRestricted = toggle.checked;
-                if (!editorRestricted) editorAccessGranted = false;
+                // Сбрасываем ранее полученный доступ (и, как следствие, скрываем кнопки)
+                // только при АКТИВАЦИИ ограничения — пароль будет запрошен заново при
+                // следующей попытке входа в редактор. При снятии галочки доступ не трогаем.
+                if (toggle.checked) {
+                    editorAccessGranted = false;
+                    applyUiHiddenLevel();
+                }
                 autoSave();
                 updateSizePopupIfVisible();
             });
@@ -8929,6 +9096,132 @@
             a.download = filename + "_viewer.html";
             a.click();
             showNotification('Просмотровый HTML экспортирован', 'success', 3000);
+        });
+
+        // ===== СОХРАНИТЬ ДЛЯ PAGES (media/ + лёгкий project.json + index.html) =====
+        document.getElementById('savePagesBtn').addEventListener('click', async () => {
+            toggleSizePopup(); // Скрываем меню перед экспортом (и перед снимком outerHTML)
+
+            const overlay = document.getElementById('loadingOverlay');
+            overlay.classList.add('show');
+            const loaderText = overlay.querySelector('.loader-text');
+            const originalText = loaderText.textContent;
+            loaderText.textContent = 'Подготовка файлов для Pages...';
+
+            try {
+                const zip = new JSZip();
+                const mediaRoot = zip.folder('media');
+                const folders = {
+                    photo: mediaRoot.folder('photo'),
+                    doc: mediaRoot.folder('doc'),
+                    video: mediaRoot.folder('video'),
+                    audio: mediaRoot.folder('audio'),
+                    '3d': mediaRoot.folder('3d')
+                };
+                let counters = { photo: 1, doc: 1, video: 1, audio: 1, '3d': 1 };
+
+                // Добавляет файл (base64 data URL ИЛИ обычный путь/URL — оба варианта
+                // читаются через fetch) в архив и возвращает новый относительный путь
+                const addMediaFile = async (src, typeGroup, ext) => {
+                    if (!src || !folders[typeGroup]) return null;
+                    try {
+                        const resp = await fetch(src);
+                        if (!resp.ok) throw new Error('HTTP ' + resp.status);
+                        const blob = await resp.blob();
+                        const idx = counters[typeGroup]++;
+                        const fName = `${typeGroup}_${String(idx).padStart(3, '0')}.${ext}`;
+                        folders[typeGroup].file(fName, blob);
+                        return `media/${typeGroup}/${fName}`;
+                    } catch (e) {
+                        console.error('Не удалось добавить файл в архив:', src, e);
+                        return null;
+                    }
+                };
+
+                // Клонируем слайды, чтобы не трогать текущее состояние редактора
+                const slidesForExport = JSON.parse(JSON.stringify(state.slides));
+
+                loaderText.textContent = 'Сбор медиафайлов...';
+                for (const slide of slidesForExport) {
+                    for (const item of slide.items) {
+                        let typeGroup = item.type;
+                        if (['pdf', 'doc', 'docx', 'txt'].includes(typeGroup)) typeGroup = 'doc';
+
+                        if (folders[typeGroup] && item.src) {
+                            let ext = 'bin';
+                            if (typeGroup === 'photo') ext = 'png';
+                            else if (typeGroup === 'video') ext = 'mp4';
+                            else if (typeGroup === 'audio') ext = 'mp3';
+                            else if (item.type === '3d') ext = item.format || 'fbx';
+                            else if (typeGroup === 'doc') ext = item.type;
+
+                            const newPath = await addMediaFile(item.src, typeGroup, ext);
+                            if (newPath) item.src = newPath;
+                        }
+
+                        if (item.cover) {
+                            const newCoverPath = await addMediaFile(item.cover, 'photo', 'png');
+                            if (newCoverPath) item.cover = newCoverPath;
+                        }
+                        if (item.poster) {
+                            const newPosterPath = await addMediaFile(item.poster, 'photo', 'png');
+                            if (newPosterPath) item.poster = newPosterPath;
+                        }
+                    }
+                }
+
+                // Лёгкий project.json (с путями, а не base64)
+                const creaturesData = window.WebmejiManager ? window.WebmejiManager.getCreaturesDataForSave() : null;
+                const cf = document.getElementById('cinematicFrame');
+                const projectData = {
+                    slides: slidesForExport,
+                    uid,
+                    projectTitle: state.projectTitle,
+                    creatures: creaturesData,
+                    slideW: slideW,
+                    slideH: slideH,
+                    perfVisible: perfVisible,
+                    cinematicVisible: cf ? cf.classList.contains('show') : true,
+                    editorRestricted: editorRestricted,
+                    editorPassword: editorPassword || '',
+                    imgEffectsLevel: imgEffectsLevel
+                };
+                zip.file('project.json', JSON.stringify(projectData));
+
+                // index.html — сама страница-просмотрщик (чистый шаблон, без отрисованного
+                // проекта и без встроенных данных), при открытии на Pages она сама
+                // подхватит project.json и media/ рядом
+                loaderText.textContent = 'Сборка index.html...';
+                let cleanHtml = window.__PRISTINE_HTML__;
+                if (cleanHtml) {
+                    // На всякий случай вырезаем возможный встроенный скрипт с данными проекта
+                    cleanHtml = cleanHtml.replace(/<script id="embedded-data-script">[\s\S]*?<\/script>\s*/i, '');
+                } else {
+                    // Резервный вариант, если чистый исходник не удалось загрузить
+                    // (например, страница открыта без сервера, напрямую с диска)
+                    showNotification('Не удалось получить чистый шаблон страницы — используется текущее состояние', 'error', 4000);
+                    const oldScript = document.getElementById('embedded-data-script');
+                    if (oldScript) oldScript.remove();
+                    cleanHtml = '<!DOCTYPE html>\n<html lang="ru">\n' + document.documentElement.outerHTML;
+                }
+                zip.file('index.html', cleanHtml);
+
+                loaderText.textContent = 'Сохранение архива...';
+                const blob = await zip.generateAsync({ type: 'blob' });
+                const a = document.createElement('a');
+                a.href = URL.createObjectURL(blob);
+                let filename = (state.projectTitle || "postprostranstvo").replace(/[\\/:*?"<>|]/g, '_').trim();
+                if (!filename) filename = "postprostranstvo";
+                a.download = filename + "_pages.zip";
+                a.click();
+                showNotification('Архив для Pages сохранён', 'success', 3000);
+            } catch (err) {
+                console.error(err);
+                showNotification('Ошибка при создании архива для Pages', 'error', 3000);
+            } finally {
+                loaderText.textContent = originalText;
+                overlay.classList.remove('show');
+            }
         });
 
         // ===== ПЕРСОНАЖИ =====
@@ -10179,7 +10472,187 @@
                 }
             });
         });
+
+  // ===== СКАЧИВАНИЕ ВСЕХ МЕДИА АРХИВОМ =====
+        document.getElementById('downloadAllMediaBtn').addEventListener('click', async () => {
+            const overlay = document.getElementById('loadingOverlay');
+            overlay.classList.add('show');
+            const loaderText = overlay.querySelector('.loader-text');
+            const originalText = loaderText.textContent;
+            loaderText.textContent = 'Архивация...';
+
+            try {
+                const zip = new JSZip();
+
+                // 1. Создаем структуру папок
+                const folders = {
+                    'photo': zip.folder('Картинки'),
+                    'doc': zip.folder('Документы'),
+                    'video': zip.folder('Видео'),
+                    'audio': zip.folder('Аудио'),
+                    '3d': zip.folder('3D Модели'),
+                    'slides': zip.folder('Слайды')
+                };
+
+                // Вспомогательная функция для добавления файла (отрезаем data:MIME;base64,)
+                const addFileToZip = (dataUrl, fileName, folder) => {
+                    if (!dataUrl || !dataUrl.includes(',')) return;
+                    const base64 = dataUrl.split(',')[1];
+                    folder.file(fileName, base64, { base64: true });
+                };
+
+                let counters = { photo: 1, doc: 1, video: 1, audio: 1, '3d': 1 };
+
+                // 2. Сбор медиа файлов из всех слайдов
+                state.slides.forEach((slide) => {
+                    slide.items.forEach(item => {
+                        let typeGroup = item.type;
+                        if (['pdf', 'doc', 'docx', 'txt'].includes(typeGroup)) typeGroup = 'doc';
+
+                        if (folders[typeGroup] && item.src) {
+                            let ext = 'bin';
+                            if (typeGroup === 'photo') ext = 'png';
+                            else if (typeGroup === 'video') ext = 'mp4';
+                            else if (typeGroup === 'audio') ext = 'mp3';
+                            else if (item.type === '3d') ext = item.format || 'fbx';
+                            else if (typeGroup === 'doc') ext = item.type; // pdf, txt, etc.
+
+                            // Формируем имя файла
+                            let safeContent = (item.content || '').replace(/<[^>]*>?/gm, '').substring(0, 20).replace(/[\\/:*?"<>|]/g, '').trim();
+                            let fName = item.fileName || `${safeContent || 'файл'}_${item.id}`;
+                            if (!fName.toLowerCase().endsWith('.' + ext)) fName += '.' + ext;
+                            
+                            addFileToZip(item.src, fName, folders[typeGroup]);
+                            counters[typeGroup]++;
+                        }
+
+                        // Сохраняем обложки (если есть) в картинки
+                        if (item.cover && (typeGroup === 'doc' || typeGroup === '3d')) {
+                            let cName = `обложка_${item.id}.png`;
+                            addFileToZip(item.cover, cName, folders['photo']);
+                        }
+                    });
+                });
+
+                // 3. Создание скриншотов слайдов
+                loaderText.textContent = 'Рендер слайдов...';
+                const originalSlide = state.current;
+                const originalUiHidden = uiHiddenLevel;
+                const cf = document.getElementById('cinematicFrame');
+                const originalCinematic = cf ? cf.classList.contains('show') : true;
+
+                // Скрываем лишний UI для чистого скриншота
+                uiHiddenLevel = 2;
+                applyUiHiddenLevel();
+                if (cf) cf.classList.remove('show');
+                document.getElementById('ctrlOverlay').classList.remove('show');
+                deselect();
+
+                // Проходим по каждому слайду
+                for (let i = 0; i < state.slides.length; i++) {
+                    goToSlide(i, false);
+                    // Ждем пока отрендерится и загрузятся фоны
+                    await new Promise(r => setTimeout(r, 500)); 
+
+                    const section = document.querySelector(`.section[data-index="${i}"]`);
+                    if (section) {
+                        const canvas = await html2canvas(section, {
+                            width: slideW,
+                            height: slideH,
+                            scale: 1,
+                            backgroundColor: '#14110c', // Фолбек фона
+                            useCORS: true,
+                            ignoreElements: (el) => el.classList.contains('hint-drag') || el.classList.contains('empty-hint')
+                        });
+
+                        // Создаем финальный холст с кастомной плашкой
+                        const finalCanvas = document.createElement('canvas');
+                        const topbarH = 52;
+                        finalCanvas.width = slideW;
+                        finalCanvas.height = slideH + topbarH;
+                        const ctx = finalCanvas.getContext('2d');
+
+                        // Рисуем верхнюю плашку
+                        ctx.fillStyle = '#0d0a06'; // bg
+                        ctx.fillRect(0, 0, finalCanvas.width, topbarH);
+                        ctx.fillStyle = '#a8442a'; // border-bottom (var(--accent2))
+                        ctx.fillRect(0, topbarH - 2, finalCanvas.width, 2);
+
+                        // Рисуем название проекта
+                        ctx.fillStyle = '#c8a24a'; // var(--accent)
+                        ctx.font = 'bold 15px "Times New Roman", serif';
+                        ctx.textBaseline = 'middle';
+                        
+                        // Добавляем letter-spacing (костыль для Canvas)
+                        let text = state.projectTitle || 'ПОСТПРОСТРАНСТВО';
+                        let x = 20;
+                        for(let char of text) {
+                            ctx.fillText(char, x, topbarH / 2);
+                            x += ctx.measureText(char).width + 3; // +3px letter-spacing
+                        }
+
+                        // Вставляем сам отрендеренный слайд под плашку
+                        ctx.drawImage(canvas, 0, topbarH);
+
+                        const dataUrl = finalCanvas.toDataURL('image/jpeg', 0.85);
+                        addFileToZip(dataUrl, `Слайд_${String(i + 1).padStart(2, '0')}.jpg`, folders['slides']);
+                    }
+                }
+
+                // Восстанавливаем состояние UI
+                uiHiddenLevel = originalUiHidden;
+                applyUiHiddenLevel();
+                if (originalCinematic && cf) cf.classList.add('show');
+                goToSlide(originalSlide, false);
+
+                // 4. Генерация и скачивание ZIP
+                loaderText.textContent = 'Сохранение...';
+                const blob = await zip.generateAsync({ type: 'blob' });
+                const a = document.createElement('a');
+                a.href = URL.createObjectURL(blob);
+                let filename = (state.projectTitle || "project").replace(/[\\/:*?"<>|]/g, '_').trim();
+                a.download = filename + "_media.zip";
+                a.click();
+
+            } catch (err) {
+                console.error(err);
+                showNotification('Ошибка при создании архива', 'error', 3000);
+            } finally {
+                loaderText.textContent = originalText;
+                overlay.classList.remove('show');
+                toggleSizePopup(); // Скрываем Alt+Q меню
+            }
+        });
     </script>
 
+    <!-- ======================== АВТОЗАГРУЗКА ВНЕШНЕГО ПРОЕКТА (viewer) ======================== -->
+    <script>
+        (function() {
+            // Промис доступен глобально, чтобы другие обработчики (например, крестик
+            // на стартовом экране) могли дождаться результата автозагрузки, даже если
+            // пользователь кликнул раньше, чем fetch успел завершиться.
+            window._projectAutoLoadPromise = fetch('project.json', { cache: 'no-cache' })
+                .then(function(r) {
+                    if (!r.ok) throw new Error('HTTP ' + r.status);
+                    return r.json();
+                })
+                .then(function(data) {
+                    // Используем тот же путь, что и встроенный экспорт HTML —
+                    // просто данные приходят снаружи, а не зашиты в файл.
+                    // Экран-заставку НЕ скрываем автоматически: пользователь должен
+                    // сам поймать кнопку «ЗАГРУЗИТЬ» и вставить её в слот — только
+                    // после этого (в обработчике клика по кнопке) проект будет
+                    // применён и заставка исчезнет.
+                    window.__EMBEDDED_PROJECT__ = data;
+                    return data;
+                })
+                .catch(function(err) {
+                    // Если project.json не найден рядом со страницей — ничего страшного:
+                    // когда пользователь поймает кнопку, откроется системное окно выбора файла проекта.
+                    console.error('Не удалось загрузить project.json:', err);
+                    return null;
+                });
+        })();
+    </script>
 </body>
 </html>
