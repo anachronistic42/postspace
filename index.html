@@ -127,7 +127,7 @@
         @keyframes slideInRev { 0% { opacity: 0; transform: translateX(calc(-50% - 40px)) scale(calc(var(--slide-scale, 1) * 0.98)); } 100% { opacity: 1; transform: translateX(-50%) scale(var(--slide-scale, 1)); } }
         .draggable { position: absolute; z-index: 4; transform-origin: center center; cursor: grab; touch-action: none; }
         /* === ANDROID: разрешаем вертикальную прокрутку в режиме просмотра === */
-        html.is-touch body.view-mode .draggable { touch-action: pan-y; }
+        html.is-touch body.view-mode .draggable { touch-action: none; }
         body.view-mode .draggable { transition: transform 0.3s cubic-bezier(0.2, 0.9, 0.4, 1.1), filter 0.2s; }
         .draggable.dragging-view { transition: none !important; cursor: grabbing; }
         .draggable.dragging-edit { transition: none !important; cursor: grabbing; z-index: 999; }
@@ -255,7 +255,7 @@
         #ctrlOverlay { position: fixed; inset: 0; z-index: 500; pointer-events: none; display: none; }
         #ctrlOverlay.show { display: block; }
         .ctrl-box { position: absolute; border: 1px dashed var(--accent); border-radius: 3px; pointer-events: none; }
-        .handle { position: absolute; width: 24px; height: 24px; border-radius: 50%; border: 1px solid var(--accent); display: flex; align-items: center; justify-content: center; font-size: 12px; cursor: pointer; pointer-events: auto; z-index: 510; transform: translate(-50%, -50%); background: #14110c; color: var(--text); }
+        .handle { position: absolute; width: 24px; height: 24px; border-radius: 50%; border: 1px solid var(--accent); display: flex; align-items: center; justify-content: center; font-size: 12px; cursor: pointer; pointer-events: auto; z-index: 510; transform: translate(-50%, -50%); background: #14110c; color: var(--text); touch-action: none; }
         .h-del { background: var(--accent2); color: #fff; }
         .h-scale { cursor: nwse-resize; background: var(--accent); color: #14110c; }
         .h-rotate { cursor: grab; background: var(--accent); color: #14110c; }
@@ -340,7 +340,7 @@
         #introScreen.hide { opacity: 0; filter: blur(14px); pointer-events: none; }
         #introSlot { position: absolute; left: 50%; top: 56%; transform: translate(-50%, -50%); width: 320px; height: 70px; border: 2px dashed var(--accent2); border-radius: 8px; background: rgba(168, 68, 42, 0.06); box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.6); display: flex; align-items: center; justify-content: center; color: var(--muted); font-family: 'Courier New', monospace; font-size: 16px; letter-spacing: 3px; text-transform: uppercase; font-weight: bold; transition: border-color 0.25s, background 0.25s, box-shadow 0.25s; }
         #introSlot.armed { border-color: var(--accent); background: rgba(200, 162, 74, 0.15); box-shadow: inset 0 0 30px rgba(200, 162, 74, 0.25), 0 0 24px rgba(200, 162, 74, 0.3); color: var(--accent); }
-        #introBtn { position: absolute; z-index: 2010; background: var(--accent2); border: 2px solid var(--accent); color: #fff; width: 320px; height: 70px; padding: 0; border-radius: 8px; font-family: 'Courier New', monospace; font-size: 18px; letter-spacing: 4px; font-weight: bold; cursor: grab; user-select: none; white-space: nowrap; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6); transition: left 0.25s cubic-bezier(0.2, 0.9, 0.4, 1.1), top 0.25s cubic-bezier(0.2, 0.9, 0.4, 1.1), background 0.3s, box-shadow 0.3s, transform 0.2s; display: flex; align-items: center; justify-content: center; }
+        #introBtn { position: absolute; z-index: 2010; background: var(--accent2); border: 2px solid var(--accent); color: #fff; width: 320px; height: 70px; padding: 0; border-radius: 8px; font-family: 'Courier New', monospace; font-size: 18px; letter-spacing: 4px; font-weight: bold; cursor: grab; user-select: none; white-space: nowrap; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6); transition: left 0.25s cubic-bezier(0.2, 0.9, 0.4, 1.1), top 0.25s cubic-bezier(0.2, 0.9, 0.4, 1.1), background 0.3s, box-shadow 0.3s, transform 0.2s; display: flex; align-items: center; justify-content: center; touch-action: none; }
         #introBtn.runaway { transition: left 0.18s ease, top 0.18s ease, background 0.3s, box-shadow 0.3s; }
         #introBtn.snapping { transition: left 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), top 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.3s, box-shadow 0.3s; }
         #introBtn.armed { background: var(--accent); color: #14110c; cursor: pointer; box-shadow: 0 0 30px rgba(200, 162, 74, 0.6); animation: introPulse 1.2s ease-in-out infinite; }
@@ -554,6 +554,161 @@
         }
         /* === ANDROID: предотвращаем случайное увеличение страницы === */
         html.is-touch, html.is-touch body { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; overscroll-behavior: none; }
+
+        /* ============================================================
+           ANDROID: обёртка верхней панели, кнопки, слайдеры, стики-ховер
+           ============================================================ */
+        html.is-touch .topbar {
+            height: auto;
+            min-height: 52px;
+            flex-wrap: wrap;
+            padding: 4px 8px;
+            align-items: center;
+            row-gap: 4px;
+        }
+        html.is-touch .topbar-left { order: 1; flex: 1 1 auto; min-width: 0; }
+        html.is-touch .topbar-right {
+            order: 2; flex: 1 1 auto; justify-content: flex-end;
+            flex-wrap: wrap; row-gap: 4px; column-gap: 4px; min-width: 0;
+        }
+        html.is-touch .topbar-center {
+            order: 3; position: static; transform: none;
+            flex: 0 0 100%; display: flex; justify-content: center;
+            margin-top: 4px;
+        }
+        html.is-touch .topbar .logo {
+            max-width: 42vw; overflow: hidden;
+            text-overflow: ellipsis; white-space: nowrap;
+        }
+        html.is-touch .action-buttons {
+            flex-wrap: wrap; justify-content: flex-end;
+            row-gap: 4px; column-gap: 4px;
+        }
+        .topbar-right.ui-hidden .action-buttons { display: none !important; }
+
+        /* Кнопки "Глаз" и "Шестерёнка" — только на тач-устройствах */
+        #eyeToggleBtn, #gearSettingsBtn { display: none; }
+        html.is-touch #eyeToggleBtn,
+        html.is-touch #gearSettingsBtn { display: inline-block; }
+        html.is-touch #settingsTopBtn  { display: none !important; }
+        #eyeToggleBtn {
+            background: rgba(20, 17, 12, 0.8);
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 7px 14px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 13px;
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            transition: background 0.2s, color 0.2s, border-color 0.2s;
+            line-height: 1.4;
+        }
+        #eyeToggleBtn:hover { background: var(--accent2); color: #fff; }
+        html.is-touch #eyeToggleBtn { padding: 5px 7px; font-size: 10px; }
+
+        /* Кнопка "управление слайдами" на Android — над "персонажами" */
+        html.is-touch .slide-manager-btn {
+            bottom: 68px; right: 20px; left: auto; transform: none;
+            padding: 10px 14px; font-size: 12px; letter-spacing: 0.5px;
+        }
+        html.is-touch .slide-manager-btn:hover { transform: scale(1.05); }
+
+        /* Отключение подсветок, фокуса, «залипающих» hover-ов */
+        html.is-touch * { -webkit-tap-highlight-color: transparent; }
+        html.is-touch button:focus,
+        html.is-touch .btn:focus,
+        html.is-touch .tool-btn:focus,
+        html.is-touch .handle:focus,
+        html.is-touch .swatch:focus { outline: none !important; }
+
+        /* Возврат hover-стилей текстовых элементов к дефолту на тач */
+        html.is-touch body.view-mode .text-item:hover {
+            background: transparent !important;
+            box-shadow: none !important;
+        }
+        html.is-touch body.view-mode .text-item.has-frame:hover {
+            background: var(--paper) !important;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6) !important;
+        }
+        html.is-touch .swatch:hover { transform: none; }
+
+        /* Кнопка «на весь экран» — только иконка */
+        #fullscreenBtn {
+            font-family: "Segoe UI Symbol", "Arial Unicode MS", sans-serif;
+            font-size: 16px; line-height: 1;
+            min-width: 34px; padding: 4px 8px;
+        }
+
+        /* Полный откат hover-подсветок на тач-устройствах */
+        @media (hover: none) {
+            html.is-touch .btn:hover,
+            html.is-touch .tool-btn:hover,
+            html.is-touch .action-buttons button:hover,
+            html.is-touch .item-toolbar button:hover,
+            html.is-touch .text-toolbar button:hover,
+            html.is-touch .add-menu .menu-item:hover,
+            html.is-touch #creaturePanel .creature-item:hover,
+            html.is-touch #creaturePanel .creature-item .actions button:hover,
+            html.is-touch #creaturePanel .creature-item .size-control button:hover,
+            html.is-touch #creaturePanel .panel-actions button:hover,
+            html.is-touch .pdf-toolbar button:hover,
+            html.is-touch .pdf-toolbar .pdf-zoom-display:hover,
+            html.is-touch .sm-actions button:hover,
+            html.is-touch #sizePopup .size-btn:hover,
+            html.is-touch #sizePopup .popup-btn:hover,
+            html.is-touch .audio-play-btn:hover,
+            html.is-touch #eyeToggleBtn:hover {
+                background: rgba(20, 17, 12, 0.85);
+                color: var(--text);
+                border-color: var(--border);
+                transform: none;
+            }
+            html.is-touch .mode-toggle button:hover {
+                background: transparent !important;
+                color: var(--muted) !important;
+            }
+            html.is-touch .mode-toggle button.active:hover {
+                background: var(--accent) !important;
+                color: #14110c !important;
+            }
+            html.is-touch .add-main-btn:hover { background: var(--accent2); color: #fff; transform: none; }
+            html.is-touch .add-slide-btn:hover { background: var(--accent2); color: #fff; }
+            html.is-touch .theme-swatch:hover { border-color: transparent; }
+            html.is-touch .side-arrow:hover { color: var(--accent); background: rgba(13, 10, 6, 0); opacity: 1 !important; }
+            html.is-touch .close-btn:hover,
+            html.is-touch .sm-close:hover,
+            html.is-touch .pdf-close:hover,
+            html.is-touch #sizePopup .popup-close:hover,
+            html.is-touch #passwordModal .modal-box .modal-close:hover { color: var(--muted); background: none; }
+            html.is-touch .password-eye:hover,
+            html.is-touch .pass-eye:hover { color: var(--muted); }
+            html.is-touch #creaturesFloatingBtn:hover { background: var(--accent2); color: #fff; transform: none; }
+            html.is-touch .viewer-3d-controls button:hover { background: #14110c; }
+        }
+
+        /* ============================================================
+           Слайдер страниц документа / PDF
+           ============================================================ */
+        .page-slider {
+            position: absolute; right: 8px; top: 66px; bottom: 16px;
+            width: 12px; background: rgba(20, 17, 12, 0.55);
+            border: 1px solid var(--border); border-radius: 6px;
+            cursor: pointer; z-index: 465; touch-action: none;
+        }
+        .page-slider-thumb {
+            position: absolute; left: -1px; right: -1px; height: 30px;
+            background: linear-gradient(180deg, var(--accent), var(--accent2));
+            border-radius: 6px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
+            transition: height 0.15s ease, top 0.15s ease, background 0.2s ease;
+            pointer-events: none;
+        }
+        .page-slider:hover .page-slider-thumb,
+        .page-slider.dragging .page-slider-thumb {
+            background: linear-gradient(180deg, #ffffff, var(--accent));
+        }
+        html.is-touch .page-slider { width: 16px; right: 4px; }
     </style>
 </head>
 <body class="edit-mode">
@@ -586,15 +741,18 @@
                 <button id="viewModeBtn">ПРОСМОТР</button>
             </div>
         </div>
+        <!-- === ANDROID: добавлены глазик (F) и шестерёнка (Alt+Q), иконка fullscreen === -->
         <div class="topbar-right">
+            <button id="eyeToggleBtn" title="Скрыть/показать интерфейс (F)">👁</button>
             <div class="action-buttons" id="viewActions" style="display: none;">
                 <button id="dragPersistBtn">ПЕРЕТАСКИВАНИЕ</button>
                 <button id="resetViewBtn">ВЕРНУТЬ</button>
             </div>
             <div class="action-buttons">
+                <button id="gearSettingsBtn" title="Настройки (Alt+Q)">⚙</button>
                 <button id="settingsTopBtn" style="display:none;">НАСТРОЙКИ</button>
                 <button id="perfToggleBtn">ВКЛ ОПТИМИЗАЦИЮ</button>
-                <button id="fullscreenBtn">НА ВЕСЬ ЭКРАН</button>
+                <button id="fullscreenBtn" title="На весь экран">⛶</button>
                 <button id="saveBtn">СОХРАНИТЬ</button>
                 <button id="loadBtn">ЗАГРУЗИТЬ</button>
             </div>
@@ -727,6 +885,10 @@
                 <div class="pdf-text-layer" id="pdfTextLayer"></div>
             </div>
         </div>
+        <!-- === Слайдер страниц PDF === -->
+        <div class="page-slider" id="pdfPageSlider">
+            <div class="page-slider-thumb" id="pdfPageSliderThumb"></div>
+        </div>
         <button class="pdf-close" id="pdfClose">✕</button>
     </div>
 
@@ -745,6 +907,10 @@
             <div class="pdf-page-holder" id="docPageHolder">
                 <div id="docContent" style="width:794px;min-height:1123px;padding:60px 70px;box-sizing:border-box;font-family:'Times New Roman',serif;font-size:18px;line-height:1.8;white-space:pre-wrap;word-wrap:break-word;overflow:hidden;"></div>
             </div>
+        </div>
+        <!-- === Слайдер страниц документа === -->
+        <div class="page-slider" id="docPageSlider">
+            <div class="page-slider-thumb" id="docPageSliderThumb"></div>
         </div>
         <button class="pdf-close" id="docClose">✕</button>
     </div>
@@ -810,7 +976,6 @@
         //  ПОЛНАЯ ФУНКЦИОНАЛЬНОСТЬ + ПОДДЕРЖКА ANDROID/TOUCH
         // ============================================================
 
-        // === ANDROID: определение устройства ===
         const IS_ANDROID = !!window.__IS_ANDROID__;
         const IS_TOUCH = !!window.__IS_TOUCH__;
 
@@ -863,7 +1028,6 @@
         function setWillChange(el) { el.style.willChange = 'transform'; }
         function unsetWillChange(el) { el.style.willChange = ''; }
 
-        // === ANDROID: на мобильных не масштабируем UI через zoom ===
         function updateFrameScale() {
             const availW = window.innerWidth;
             if (IS_TOUCH) {
@@ -873,8 +1037,10 @@
             }
             document.documentElement.style.setProperty('--frame-scale', frameScale);
 
-            const topbarH = 52 * frameScale;
-            const availH = window.innerHeight - topbarH;
+            // === ANDROID/ALL: реальная высота верхней панели (учитывает перенос строк) ===
+            const topbarEl = document.querySelector('.topbar');
+            const topbarH  = topbarEl ? topbarEl.getBoundingClientRect().height : (52 * frameScale);
+            const availH   = window.innerHeight - topbarH;
             const slideScale = Math.min(availW / slideW, availH / slideH);
             slideFrameScale = slideScale;
             document.documentElement.style.setProperty('--slide-scale', slideScale);
@@ -935,6 +1101,25 @@
             }, 250);
         });
 
+        // === ANDROID: следим за фактической высотой topbar при переносах строк ===
+        if (IS_TOUCH) {
+            const topbar = document.querySelector('.topbar');
+            if (topbar) {
+                const syncTopbar = () => {
+                    const h = topbar.getBoundingClientRect().height;
+                    document.documentElement.style.setProperty('--slide-top', h + 'px');
+                    const cf = document.getElementById('cinematicFrame');
+                    if (cf) cf.style.top = h + 'px';
+                };
+                if (typeof ResizeObserver !== 'undefined') {
+                    try { new ResizeObserver(syncTopbar).observe(topbar); } catch (e) {}
+                }
+                window.addEventListener('resize', syncTopbar);
+                window.addEventListener('orientationchange', () => setTimeout(syncTopbar, 250));
+                setTimeout(syncTopbar, 100);
+            }
+        }
+
         function applyUiHiddenLevel() {
             const charsBtn = document.getElementById('creaturesFloatingBtn');
             const dots = document.getElementById('navDots');
@@ -954,7 +1139,7 @@
                 if (saveBtnEl) saveBtnEl.style.display = '';
                 if (loadBtnEl) loadBtnEl.style.display = '';
             }
-            tbRight.style.display = '';
+            tbRight.classList.remove('ui-hidden');
 
             if (uiHiddenLevel >= 1) {
                 charsBtn.style.display = 'none';
@@ -962,7 +1147,8 @@
             }
             if (uiHiddenLevel === 2) {
                 tbCenter.style.display = 'none';
-                tbRight.style.display = 'none';
+                // Прячем .action-buttons, но глазик остаётся виден
+                tbRight.classList.add('ui-hidden');
             }
         }
 
@@ -2249,7 +2435,6 @@
             else { colorCont.style.display = 'flex'; frameCont.style.display = 'none'; }
         }
 
-        // === ANDROID: обработчики элементов с поддержкой touch ===
         function attachItemEvents(el, item, slideIdx) {
             function isAudioControl(target) {
                 return target.closest('.audio-play-btn, .audio-progress-track, .audio-volume-track');
@@ -2280,7 +2465,6 @@
                 else if (isEditing) startEditDrag(el, item, e);
             });
 
-            // === ANDROID: long-press для входа в редактирование текста ===
             if (IS_TOUCH) {
                 let longPressTimer = null;
                 let longPressActivated = false;
@@ -2302,7 +2486,6 @@
                 }, { passive: true });
                 el.addEventListener('touchend', (e) => {
                     if (longPressTimer) { clearTimeout(longPressTimer); longPressTimer = null; }
-                    // Гасим последующий click после активации long-press
                     if (longPressActivated) { e.preventDefault(); longPressActivated = false; }
                 });
                 el.addEventListener('touchmove', () => {
@@ -2310,12 +2493,10 @@
                 });
             }
 
-            // === ANDROID: double-tap для открытия элемента в просмотре ===
             let lastTapTime = 0;
             if (IS_TOUCH) {
                 el.addEventListener('touchend', (e) => {
                     if (state.mode !== 'view') return;
-                    // Игнорируем если был drag
                     const now = Date.now();
                     if (now - lastTapTime < 350) {
                         e.preventDefault();
@@ -2647,7 +2828,6 @@
             }
         }
 
-        // === ANDROID: helper для кликабельной подсказки пустого слайда ===
         function createEmptyHint() {
             const hint = document.createElement('div');
             hint.className = 'empty-hint';
@@ -2785,7 +2965,6 @@
             });
         }
 
-        // === ANDROID: helper — добавляет кнопки копирования/удаления на тач-устройствах ===
         function appendTouchToolbarButtons(tb) {
             if (!IS_TOUCH) return;
             const copyBtn = document.createElement('button');
@@ -4449,6 +4628,7 @@
                     renderPdfTextLayer(page, vp);
                     pdfV.rendering = false;
                     applyPdfColors();
+                    if (pdfPageSlider) pdfPageSlider.update();
                 }).catch(() => { pdfV.rendering = false; });
                 updatePdfUI();
             });
@@ -4703,6 +4883,7 @@
             if (docV2.zoomMode === 'fit') zd.textContent = 'Вписать';
             else if (docV2.zoomMode === '160') zd.textContent = '160%';
             else zd.textContent = Math.round(docV2.zoomValue * 100) + '%';
+            if (docPageSlider) docPageSlider.update();
         }
 
         function docNextPage() { if (docV2.page < docV2.total) { docV2.page++; renderDocPage(); } }
@@ -4777,12 +4958,31 @@
             }
         }, { passive: false });
 
+        // === Стрелки документа: ↓/↑ — скролл до конца + перелистывание, ←/→ — перелистывание ===
         document.addEventListener('keydown', (e) => {
             const viewer = document.getElementById('docViewer');
             if (!viewer.classList.contains('show')) return;
-            if (e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === 'PageDown') { e.preventDefault(); docNextPage(); }
-            else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp' || e.key === 'PageUp') { e.preventDefault(); docPrevPage(); }
-            else if (e.key === 'Escape') closeDocViewer();
+            const scroll = document.getElementById('docScroll');
+
+            if (e.key === 'ArrowRight') { e.preventDefault(); docNextPage(); return; }
+            if (e.key === 'ArrowLeft')  { e.preventDefault(); docPrevPage(); return; }
+            if (e.key === 'Escape')     { closeDocViewer(); return; }
+
+            if (e.key === 'ArrowDown' || e.key === 'PageDown') {
+                e.preventDefault();
+                const fits     = scroll.scrollHeight <= scroll.clientHeight + 4;
+                const atBottom = scroll.scrollTop + scroll.clientHeight >= scroll.scrollHeight - 5;
+                if (fits || atBottom) docNextPage();
+                else scroll.scrollBy({ top: 120, behavior: 'auto' });
+                return;
+            }
+            if (e.key === 'ArrowUp' || e.key === 'PageUp') {
+                e.preventDefault();
+                const fits  = scroll.scrollHeight <= scroll.clientHeight + 4;
+                const atTop = scroll.scrollTop <= 5;
+                if (fits || atTop) docPrevPage();
+                else scroll.scrollBy({ top: -120, behavior: 'auto' });
+            }
         });
 
         window.addEventListener('resize', () => {
@@ -5010,13 +5210,21 @@
 
         const fullscreenBtn = document.getElementById('fullscreenBtn');
         if (fullscreenBtn) {
+            // === Единый синк иконки fullscreen ===
+            function syncFullscreenBtnLabel() {
+                fullscreenBtn.textContent = document.fullscreenElement ? '⤡' : '⛶';
+                fullscreenBtn.title = document.fullscreenElement
+                    ? 'Выйти из полного экрана' : 'На весь экран';
+            }
+            syncFullscreenBtnLabel();
+
             fullscreenBtn.onclick = () => {
                 if (!document.fullscreenElement) document.documentElement.requestFullscreen().catch(() => {});
                 else document.exitFullscreen();
             };
 
             function handleFullscreenChange() {
-                fullscreenBtn.textContent = document.fullscreenElement ? 'ИЗ ПОЛНОГО ЭКРАНА' : 'НА ВЕСЬ ЭКРАН';
+                syncFullscreenBtnLabel();
                 setTimeout(updateFrameScale, 50);
                 requestAnimationFrame(() => {
                     const scroller = document.getElementById('scroller');
@@ -5150,22 +5358,34 @@
             window.wheelTimer = setTimeout(() => wheelAccum = 0, 150);
         }, { passive: false });
 
+        // === Alt+Q вынесено в функцию, вызывается и из шестерёнки ===
+        function handleAltQ() {
+            if (state.mode === 'edit') { toggleSizePopup(); return; }
+            if (window.__EMBEDDED_PROJECT__ && !editorAccessGranted) {
+                showPasswordModal('altq', () => { toggleSizePopup(); });
+                return;
+            }
+            if (editorRestricted && !editorAccessGranted) {
+                showPasswordModal('altq', () => { toggleSizePopup(); });
+            } else {
+                toggleSizePopup();
+            }
+        }
+
+        document.getElementById('gearSettingsBtn').addEventListener('click', handleAltQ);
+        document.getElementById('eyeToggleBtn').addEventListener('click', () => {
+            if (state.mode !== 'view') return;
+            uiHiddenLevel = (uiHiddenLevel + 1) % 3;
+            applyUiHiddenLevel();
+        });
+
         document.addEventListener('keydown', (e) => {
             const activeEl = document.activeElement;
             const isEditable = activeEl && (activeEl.getAttribute('contenteditable') === 'true' || activeEl.tagName === 'INPUT' || activeEl.tagName === 'TEXTAREA');
 
             if (e.altKey && (e.key === 'q' || e.key === 'Q' || e.key === 'й' || e.key === 'Й')) {
                 e.preventDefault();
-                if (state.mode === 'edit') { toggleSizePopup(); return; }
-                if (window.__EMBEDDED_PROJECT__ && !editorAccessGranted) {
-                    showPasswordModal('altq', () => { toggleSizePopup(); });
-                    return;
-                }
-                if (editorRestricted && !editorAccessGranted) {
-                    showPasswordModal('altq', () => { toggleSizePopup(); });
-                } else {
-                    toggleSizePopup();
-                }
+                handleAltQ();
                 return;
             }
 
@@ -5332,17 +5552,36 @@
             }
         }, { passive: false });
 
+        // === Стрелки PDF: ↓/↑ — скролл + перелистывание, ←/→ — перелистывание ===
         document.addEventListener('keydown', (e) => {
             const viewer = document.getElementById('pdfViewer');
             if (!viewer.classList.contains('show')) return;
-            if (e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === 'PageDown') { e.preventDefault(); pdfNext(); }
-            else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp' || e.key === 'PageUp') { e.preventDefault(); pdfPrev(); }
-            else if (e.key === 'Escape') closePdfViewer();
-            else if ((e.ctrlKey || e.metaKey) && e.key === '=') { e.preventDefault(); pdfZoom(0.2); }
-            else if ((e.ctrlKey || e.metaKey) && e.key === '-') { e.preventDefault(); pdfZoom(-0.2); }
+            const scroll = document.getElementById('pdfScroll');
+
+            if (e.key === 'ArrowRight') { e.preventDefault(); pdfNext(); return; }
+            if (e.key === 'ArrowLeft')  { e.preventDefault(); pdfPrev(); return; }
+            if (e.key === 'Escape')     { closePdfViewer(); return; }
+            if ((e.ctrlKey || e.metaKey) && e.key === '=') { e.preventDefault(); pdfZoom(0.2); return; }
+            if ((e.ctrlKey || e.metaKey) && e.key === '-') { e.preventDefault(); pdfZoom(-0.2); return; }
+
+            if (e.key === 'ArrowDown' || e.key === 'PageDown') {
+                e.preventDefault();
+                const fits     = scroll.scrollHeight <= scroll.clientHeight + 4;
+                const atBottom = scroll.scrollTop + scroll.clientHeight >= scroll.scrollHeight - 5;
+                if (fits || atBottom) pdfNext();
+                else scroll.scrollBy({ top: 120, behavior: 'auto' });
+                return;
+            }
+            if (e.key === 'ArrowUp' || e.key === 'PageUp') {
+                e.preventDefault();
+                const fits  = scroll.scrollHeight <= scroll.clientHeight + 4;
+                const atTop = scroll.scrollTop <= 5;
+                if (fits || atTop) pdfPrev();
+                else scroll.scrollBy({ top: -120, behavior: 'auto' });
+            }
         });
 
-        // === ANDROID: переработанный intro — на тач-устройствах кнопка сразу в слоте ===
+        // === ИНТРО (переписана ветка для Android) ===
         (function initIntro() {
             const screen = document.getElementById('introScreen');
             const btn = document.getElementById('introBtn');
@@ -5351,7 +5590,7 @@
 
             const getSnapRadius = () => 70 * (window.frameScale || 1);
 
-            let armed = IS_TOUCH ? true : false;
+            let armed = false;
             let dragging = false;
             let pointerId = null;
             let offX = 0, offY = 0;
@@ -5397,17 +5636,81 @@
             });
 
             if (IS_TOUCH) {
-                // === ANDROID: сразу размещаем кнопку в слоте, без "убегания" ===
-                btn.style.transition = 'none';
-                btn.style.left = '50%';
-                btn.style.top = '56%';
-                btn.style.transform = 'translate(-50%, -50%)';
-                btn.classList.add('armed');
-                btn.textContent = 'ЗАГРУЗИТЬ ▸';
+                // На Android: убегание от пальца + перетаскивание + прилипание к слоту.
+                // Кнопка не использует transform — устранён конфликт с introPulse.
+                function layout() {
+                    const r = btn.getBoundingClientRect();
+                    const w = r.width  || 320;
+                    const h = r.height || 70;
+                    place(window.innerWidth - w - 24, window.innerHeight - h - 24);
+                }
+                layout();
+                window.addEventListener('resize', layout);
+
+                screen.addEventListener('touchstart', (e) => {
+                    if (armed || alreadyUsed || dragging) return;
+                    if (e.touches.length !== 1) return;
+                    if (e.target === btn || btn.contains(e.target)) return;
+                    const t  = e.touches[0];
+                    const bc = btnCenter();
+                    const dist  = Math.hypot(t.clientX - bc.x, t.clientY - bc.y);
+                    const limit = 130 * (window.frameScale || 1);
+                    if (dist < limit) {
+                        const r   = btn.getBoundingClientRect();
+                        const ang = Math.atan2(bc.y - t.clientY, bc.x - t.clientX);
+                        let nx = bc.x + Math.cos(ang) * 180 - r.width  / 2;
+                        let ny = bc.y + Math.sin(ang) * 180 - r.height / 2;
+                        nx = Math.max(20, Math.min(window.innerWidth  - r.width  - 20, nx));
+                        ny = Math.max(90, Math.min(window.innerHeight - r.height - 20, ny));
+                        btn.classList.add('runaway');
+                        place(nx, ny);
+                    }
+                }, { passive: true });
+
+                btn.addEventListener('touchstart', (e) => {
+                    if (armed || alreadyUsed || e.touches.length !== 1) return;
+                    e.preventDefault();
+                    dragging = true;
+                    btn.classList.remove('runaway');
+                    btn.classList.add('dragging');
+                    const r = btn.getBoundingClientRect();
+                    offX = e.touches[0].clientX - r.left;
+                    offY = e.touches[0].clientY - r.top;
+                }, { passive: false });
+
+                btn.addEventListener('touchmove', (e) => {
+                    if (!dragging || e.touches.length !== 1) return;
+                    const t = e.touches[0];
+                    place(t.clientX - offX, t.clientY - offY);
+                    const c  = btnCenter();
+                    const sc = centerOfSlot();
+                    slot.classList.toggle('armed',
+                        Math.hypot(c.x - sc.x, c.y - sc.y) < getSnapRadius());
+                }, { passive: true });
+
+                btn.addEventListener('touchend', () => {
+                    if (!dragging) return;
+                    dragging = false;
+                    btn.classList.remove('dragging');
+                    const c  = btnCenter();
+                    const sc = centerOfSlot();
+                    if (Math.hypot(c.x - sc.x, c.y - sc.y) < getSnapRadius()) {
+                        const r = btn.getBoundingClientRect();
+                        btn.classList.add('snapping');
+                        place(sc.x - r.width / 2, sc.y - r.height / 2);
+                        slot.classList.remove('armed');
+                        armed = true;
+                        setTimeout(() => {
+                            btn.classList.remove('snapping');
+                            btn.classList.add('armed');
+                            btn.textContent = 'ЗАГРУЗИТЬ ▸';
+                        }, 300);
+                    } else {
+                        slot.classList.remove('armed');
+                    }
+                });
+
                 closeBtn.style.display = 'flex';
-                requestAnimationFrame(() => { btn.style.transition = ''; });
-                // Небольшой pulse кнопки, чтобы привлечь внимание
-                slot.classList.add('armed');
             } else {
                 function layout() { if (!armed) place(window.innerWidth * 0.62, window.innerHeight * 0.78); }
                 layout();
@@ -5948,10 +6251,83 @@
         });
 
         // ============================================================
+        // === Слайдеры страниц для PDF и DOC ===
+        // ============================================================
+        function setupPageSlider(sliderId, thumbId, stateObj, renderFn) {
+            const slider = document.getElementById(sliderId);
+            const thumb  = document.getElementById(thumbId);
+            if (!slider || !thumb) return null;
+
+            function update() {
+                const trackH = slider.clientHeight;
+                const thumbH = Math.max(20, trackH / Math.max(1, stateObj.total));
+                thumb.style.height = thumbH + 'px';
+                thumb.style.top = ((stateObj.page - 1) / Math.max(1, stateObj.total - 1))
+                                  * Math.max(0, trackH - thumbH) + 'px';
+            }
+
+            let dragging = false;
+            function seek(clientY) {
+                const r  = slider.getBoundingClientRect();
+                const th = thumb.offsetHeight;
+                const y  = Math.max(0, Math.min(r.height - th, clientY - r.top - th / 2));
+                const ratio = (r.height - th) > 0 ? y / (r.height - th) : 0;
+                const page  = Math.max(1, Math.min(stateObj.total, Math.round(ratio * (stateObj.total - 1)) + 1));
+                if (page !== stateObj.page) { stateObj.page = page; renderFn(); }
+            }
+
+            slider.addEventListener('mousedown', (e) => {
+                dragging = true; slider.classList.add('dragging'); seek(e.clientY); e.preventDefault();
+            });
+            document.addEventListener('mousemove', (e) => { if (dragging) seek(e.clientY); });
+            document.addEventListener('mouseup', () => { if (dragging) { dragging = false; slider.classList.remove('dragging'); } });
+
+            slider.addEventListener('touchstart', (e) => {
+                dragging = true; slider.classList.add('dragging');
+                seek(e.touches[0].clientY); e.preventDefault();
+            }, { passive: false });
+            document.addEventListener('touchmove', (e) => {
+                if (!dragging || !e.touches.length) return;
+                seek(e.touches[0].clientY); e.preventDefault();
+            }, { passive: false });
+            document.addEventListener('touchend', () => {
+                if (dragging) { dragging = false; slider.classList.remove('dragging'); }
+            });
+
+            return { update };
+        }
+
+        const docPageSlider = setupPageSlider('docPageSlider', 'docPageSliderThumb', docV2, () => renderDocPage());
+        const pdfPageSlider = setupPageSlider('pdfPageSlider', 'pdfPageSliderThumb', pdfV,   () => renderPdfPage());
+
+        // ============================================================
+        // === Свайпы у границ документа на Android ===
+        // ============================================================
+        function attachSwipePaging(scrollEl, nextFn, prevFn) {
+            if (!scrollEl || !IS_TOUCH) return;
+            let startY = 0, startT = 0;
+            scrollEl.addEventListener('touchstart', (e) => {
+                if (e.touches.length !== 1) return;
+                startY = e.touches[0].clientY;
+                startT = Date.now();
+            }, { passive: true });
+            scrollEl.addEventListener('touchend', (e) => {
+                if (e.changedTouches.length !== 1) return;
+                const deltaY = startY - e.changedTouches[0].clientY;
+                if (Date.now() - startT > 600 || Math.abs(deltaY) < 60) return;
+                const atBottom = scrollEl.scrollTop + scrollEl.clientHeight >= scrollEl.scrollHeight - 5;
+                const atTop    = scrollEl.scrollTop <= 5;
+                if (deltaY > 0 && atBottom) nextFn();
+                else if (deltaY < 0 && atTop) prevFn();
+            }, { passive: true });
+        }
+        attachSwipePaging(document.getElementById('docScroll'), docNextPage, docPrevPage);
+        attachSwipePaging(document.getElementById('pdfScroll'), pdfNext,     pdfPrev);
+
+        // ============================================================
         // === ANDROID/TOUCH: дополнительные инициализации ============
         // ============================================================
 
-        // === ANDROID: синхронизация state.current при нативной горизонтальной прокрутке ===
         (function initTouchScrollSync() {
             if (!IS_TOUCH) return;
             const scroller = document.getElementById('scroller');
@@ -5973,7 +6349,6 @@
             }, { passive: true });
         })();
 
-        // === ANDROID: pinch-to-zoom для масштабирования элемента ===
         (function initPinchScale() {
             if (!IS_TOUCH) return;
             let pinchStartDist = 0;
@@ -6022,13 +6397,12 @@
             });
         })();
 
-        // === ANDROID: long-press на пустом слайде = открытие Alt+Q меню ===
         (function initLongPressSettings() {
             if (!IS_TOUCH) return;
             let lpTimer = null;
             document.addEventListener('touchstart', (e) => {
                 if (e.touches.length !== 1) return;
-                if (e.target.closest('.draggable, .btn, button, input, textarea, select, .item-toolbar, .text-toolbar, #creaturePanel, .sm-box, .add-menu, .viewer, .pdf-viewer, .doc-viewer, #introScreen, #sizePopup, #passwordModal, #confirmModal, .side-arrow, .nav-dots')) return;
+                if (e.target.closest('.draggable, .btn, button, input, textarea, select, .item-toolbar, .text-toolbar, #creaturePanel, .sm-box, .add-menu, .viewer, .pdf-viewer, .doc-viewer, #introScreen, #sizePopup, #passwordModal, #confirmModal, .side-arrow, .nav-dots, .page-slider')) return;
                 lpTimer = setTimeout(() => {
                     if (state.mode === 'edit') {
                         toggleSizePopup();
@@ -6042,7 +6416,6 @@
             document.addEventListener('touchcancel', cancel);
         })();
 
-        // === ANDROID: закрытие тулбаров по тапу вне ===
         (function initTouchToolbarClose() {
             if (!IS_TOUCH) return;
             document.addEventListener('touchstart', (e) => {
@@ -6053,7 +6426,6 @@
             }, { passive: true });
         })();
 
-        // === ANDROID: блокируем стандартное контекстное меню на элементах/слайде ===
         (function initContextMenuBlock() {
             if (!IS_TOUCH) return;
             document.addEventListener('contextmenu', (e) => {
@@ -6061,6 +6433,22 @@
             });
         })();
 
+        // === ANDROID: сброс «залипающего» фокуса после тапа ===
+        if (IS_TOUCH) {
+            document.addEventListener('touchend', function (e) {
+                const el = e.target;
+                if (!el || !el.closest) return;
+                const btn = el.closest(
+                    'button, .btn, .tool-btn, .handle, .swatch, ' +
+                    '.sm-actions button, .item-toolbar button, .text-toolbar button, ' +
+                    '.action-buttons button, .mode-toggle button, .close-btn, ' +
+                    '.pdf-toolbar button, .theme-swatch, .size-btn, .popup-btn'
+                );
+                if (btn && typeof btn.blur === 'function') {
+                    setTimeout(() => { try { btn.blur(); } catch (err) {} }, 60);
+                }
+            }, { passive: true, capture: true });
+        }
     </script>
 
     <!-- ======================== ИНТЕГРАЦИЯ WEBMEJI ======================== -->
@@ -6290,7 +6678,6 @@
                     choice === 'fall' && this.fallToBottom();
             }
 
-            // === ANDROID: pet-взаимодействие работает и на тач-устройствах ===
             enablePetInteraction() {
                 if (!this.spriteConfig.ALLOWANCES?.includes('pet') || !this.spriteConfig.ALLOWANCES?.includes('bottom')) return;
 
