@@ -4,7 +4,6 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
     <title>Постпространство</title>
-    <!-- === ANDROID: ранняя установка классов на <html> для CSS === -->
     <script>
         (function() {
             var ua = navigator.userAgent || '';
@@ -16,7 +15,6 @@
             if (isTouch) document.documentElement.classList.add('is-touch');
         })();
     </script>
-    <!-- ЛЕНИВАЯ ЗАГРУЗКА ЧИСТОГО ШАБЛОНА -->
     <script>
         window.__getPristineHtml__ = function() {
             if (window.__PRISTINE_HTML__) return Promise.resolve(window.__PRISTINE_HTML__);
@@ -29,20 +27,15 @@
                 .catch(function() { return null; });
         };
     </script>
-    <!-- PDF.js -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
-    <!-- html2canvas -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script>
         if (window.pdfjsLib) {
             pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
         }
     </script>
-    <!-- JSZip -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-    <!-- mammoth -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
-    <!-- Three.js -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/fflate@0.7.4/umd/index.js"></script>
@@ -109,7 +102,7 @@
         .vignette { position: fixed; inset: 0; z-index: 49; pointer-events: none; background: radial-gradient(ellipse at center, transparent 55%, rgba(0, 0, 0, 0.55) 100%); }
         .scratches { position: fixed; inset: 0; z-index: 51; pointer-events: none; opacity: 0.10; background-image: linear-gradient(90deg, transparent 49.8%, rgba(255, 255, 255, 0.5) 50%, transparent 50.2%), linear-gradient(90deg, transparent 19.9%, rgba(255, 255, 255, 0.3) 20%, transparent 20.1%), linear-gradient(90deg, transparent 79.9%, rgba(200, 200, 180, 0.25) 80%, transparent 80.1%); animation: scratchMove 6s linear infinite; }
         @keyframes scratchMove { from { transform: translateX(0); } to { transform: translateX(40px); } }
-        .scroll-container { display: flex; height: 100vh; overflow-x: auto; overflow-y: hidden; scroll-snap-type: x mandatory; padding-top: 0; -webkit-overflow-scrolling: touch; }
+        .scroll-container { display: flex; height: 100vh; overflow-x: auto; overflow-y: hidden; scroll-snap-type: x mandatory; padding-top: 0; -webkit-overflow-scrolling: touch; overscroll-behavior-x: contain; }
         .scroll-container::-webkit-scrollbar { height: 8px; }
         .scroll-container::-webkit-scrollbar-track { background: #0d0a06; }
         .scroll-container::-webkit-scrollbar-thumb { background: var(--accent2); border-radius: 4px; }
@@ -126,7 +119,6 @@
         .section.slide-anim-rev .items-layer { animation: slideInRev 0.5s ease; }
         @keyframes slideInRev { 0% { opacity: 0; transform: translateX(calc(-50% - 40px)) scale(calc(var(--slide-scale, 1) * 0.98)); } 100% { opacity: 1; transform: translateX(-50%) scale(var(--slide-scale, 1)); } }
         .draggable { position: absolute; z-index: 4; transform-origin: center center; cursor: grab; touch-action: none; }
-        /* === ANDROID: разрешаем вертикальную прокрутку в режиме просмотра === */
         html.is-touch body.view-mode .draggable { touch-action: none; }
         body.view-mode .draggable { transition: transform 0.3s cubic-bezier(0.2, 0.9, 0.4, 1.1), filter 0.2s; }
         .draggable.dragging-view { transition: none !important; cursor: grabbing; }
@@ -217,7 +209,6 @@
         .media-box .audio-wrap .audio-volume-icon svg { width: 16px; height: 16px; fill: currentColor; display: block; margin: 0 auto; overflow: visible; }
         .media-box .audio-wrap .audio-volume-track { width: 0; height: 4px; background: rgba(200, 162, 74, 0.20); border-radius: 4px; position: relative; cursor: pointer; overflow: visible; transition: width 0.25s ease, opacity 0.25s ease; opacity: 0; }
         .media-box .audio-wrap .audio-volume-wrap:hover .audio-volume-track { width: 56px; opacity: 1; }
-        /* === ANDROID: всегда показываем громкость на тач-устройствах === */
         html.is-touch .media-box .audio-wrap .audio-volume-track { width: 56px !important; opacity: 1 !important; }
         .media-box .audio-wrap .audio-volume-fill { height: 100%; width: 80%; background: var(--accent); border-radius: 4px; position: relative; }
         .media-box .audio-wrap .audio-volume-fill::after { content: ""; position: absolute; right: -3px; top: 50%; transform: translateY(-50%); width: 9px; height: 9px; border-radius: 50%; background: var(--accent); border: 1px solid rgba(255, 255, 255, 0.3); box-shadow: 0 0 6px rgba(200, 162, 74, 0.4); }
@@ -281,7 +272,6 @@
         .btn.add-slide-btn:hover { background: var(--accent); color: #14110c; }
         .hint-drag { position: absolute; top: 70px; right: 7vw; z-index: 110; color: var(--muted); font-size: 12px; font-style: italic; letter-spacing: 1px; }
         body.edit-mode .hint-drag { display: none !important; }
-        /* === ANDROID: скрываем подсказки, увеличиваем элементы управления === */
         html.is-touch .hint-drag { display: none !important; }
         html.is-touch .side-arrow { opacity: 0.4; width: 46px; height: 72px; font-size: 32px; }
         html.is-touch .handle { width: 34px; height: 34px; font-size: 15px; }
@@ -334,7 +324,6 @@
         .side-arrow:hover { opacity: 1 !important; }
         .empty-hint { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: var(--muted); font-size: 15px; font-style: italic; text-align: center; pointer-events: none; }
         body.view-mode .empty-hint { display: none; }
-        /* === ANDROID: делаем подсказку пустого слайда кликабельной === */
         html.is-touch .empty-hint { cursor: pointer; }
         #introScreen { position: fixed; inset: 0; z-index: 2000; background: radial-gradient(ellipse at 50% 40%, #1c1810, #0d0a06 80%); display: flex; align-items: center; justify-content: center; overflow: hidden; transition: opacity 1.1s ease, filter 1.1s ease; }
         #introScreen.hide { opacity: 0; filter: blur(14px); pointer-events: none; }
@@ -389,7 +378,7 @@
         #creaturesFloatingBtn { position: fixed; bottom: 20px; right: 20px; z-index: 999; background: var(--accent2); border: 1px solid var(--accent); color: #fff; padding: 10px 18px; border-radius: 30px; font-family: 'Courier New', monospace; font-size: 14px; font-weight: bold; letter-spacing: 1px; cursor: pointer; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5); transition: background 0.2s, transform 0.15s; display: block; }
         #creaturesFloatingBtn:hover { background: var(--accent); color: #14110c; transform: scale(1.05); }
         #creaturesToggleBtn { display: none !important; }
-        #confirmModal { position: fixed; inset: 0; z-index: 2000; background: rgba(0, 0, 0, 0.7); display: none; align-items: center; justify-content: center; backdrop-filter: blur(4px); }
+        #confirmModal { position: fixed; inset: 0; z-index: 10100; background: rgba(0, 0, 0, 0.7); display: none; align-items: center; justify-content: center; backdrop-filter: blur(4px); }
         #confirmModal.show { display: flex; }
         #confirmModal .modal-box { background: rgba(13, 10, 6, 0.97); border: 1px solid var(--accent); border-radius: 8px; padding: 24px 30px; max-width: 400px; width: 90%; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8); text-align: center; }
         #confirmModal .modal-box .modal-title { font-family: 'Courier New', monospace; font-size: 18px; color: var(--accent); margin-bottom: 12px; letter-spacing: 2px; }
@@ -400,7 +389,7 @@
         #confirmModal .modal-box .modal-buttons .modal-cancel:hover { background: var(--bg2); }
         #confirmModal .modal-box .modal-buttons .modal-confirm { background: var(--accent2); color: #fff; border-color: var(--accent); }
         #confirmModal .modal-box .modal-buttons .modal-confirm:hover { background: var(--accent); color: #14110c; }
-        #passwordModal { position: fixed; inset: 0; z-index: 2100; background: rgba(0, 0, 0, 0.75); display: none; align-items: center; justify-content: center; backdrop-filter: blur(4px); }
+        #passwordModal { position: fixed; inset: 0; z-index: 10150; background: rgba(0, 0, 0, 0.75); display: none; align-items: center; justify-content: center; backdrop-filter: blur(4px); }
         #passwordModal.show { display: flex; }
         #passwordModal .modal-box { background: rgba(13, 10, 6, 0.97); border: 1px solid var(--accent); border-radius: 8px; padding: 28px 34px; max-width: 400px; width: 90%; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8); text-align: center; position: relative; }
         #passwordModal .modal-box .modal-close { position: absolute; top: 12px; right: 16px; background: none; border: none; color: var(--muted); font-size: 22px; cursor: pointer; transition: color 0.2s; font-family: monospace; padding: 0 6px; line-height: 1; }
@@ -408,10 +397,11 @@
         #passwordModal .modal-box .modal-title { font-family: 'Courier New', monospace; font-size: 18px; color: var(--accent); margin-bottom: 12px; letter-spacing: 2px; }
         #passwordModal .modal-box .modal-message { font-size: 15px; color: var(--text); margin-bottom: 16px; line-height: 1.5; }
         #passwordModal .modal-box .password-input-wrap { position: relative; width: 100%; margin-bottom: 16px; }
-        #passwordModal .modal-box .password-input { width: 100%; padding: 10px 40px 10px 14px; background: rgba(20, 17, 12, 0.9); border: 1px solid var(--border); border-radius: 4px; color: var(--text); font-family: 'Courier New', monospace; font-size: 16px; outline: none; transition: border-color 0.2s; box-sizing: border-box; }
+        #passwordModal .modal-box .password-input { width: 100%; padding: 10px 44px 10px 14px; background: rgba(20, 17, 12, 0.9); border: 1px solid var(--border); border-radius: 4px; color: var(--text); font-family: 'Courier New', monospace; font-size: 16px; outline: none; transition: border-color 0.2s; box-sizing: border-box; }
         #passwordModal .modal-box .password-input:focus { border-color: var(--accent); }
-        #passwordModal .modal-box .password-eye { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; color: var(--muted); cursor: pointer; padding: 4px; font-size: 18px; line-height: 1; transition: color 0.2s; font-family: monospace; }
-        #passwordModal .modal-box .password-eye:hover { color: var(--accent); }
+        #passwordModal .modal-box .password-eye { position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: none; border: none; color: var(--accent); cursor: pointer; padding: 4px 6px; font-size: 0; line-height: 1; transition: color 0.2s, opacity 0.2s; display: inline-flex; align-items: center; justify-content: center; opacity: 0.85; }
+        #passwordModal .modal-box .password-eye:hover { color: #e6c566; opacity: 1; }
+        #passwordModal .modal-box .password-eye svg { display: block; }
         #passwordModal .modal-box .modal-buttons { display: flex; gap: 12px; justify-content: center; }
         #passwordModal .modal-box .modal-buttons button { padding: 8px 24px; border: 1px solid var(--border); border-radius: 4px; cursor: pointer; font-family: 'Courier New', monospace; font-size: 13px; transition: background 0.2s, color 0.2s; }
         #passwordModal .modal-box .modal-buttons .modal-cancel { background: rgba(20, 17, 12, 0.8); color: var(--text); }
@@ -419,7 +409,7 @@
         #passwordModal .modal-box .modal-buttons .modal-confirm { background: var(--accent2); color: #fff; border-color: var(--accent); }
         #passwordModal .modal-box .modal-buttons .modal-confirm:hover { background: var(--accent); color: #14110c; }
         #passwordModal .modal-box .modal-error { color: var(--accent2); font-size: 13px; margin-top: 8px; min-height: 20px; font-family: 'Courier New', monospace; }
-        #loadingOverlay { position: fixed; inset: 0; z-index: 3000; background: rgba(8, 6, 4, 0.92); display: none; align-items: center; justify-content: center; flex-direction: column; gap: 20px; backdrop-filter: blur(6px); }
+        #loadingOverlay { position: fixed; inset: 0; z-index: 20000; background: rgba(8, 6, 4, 0.92); display: none; align-items: center; justify-content: center; flex-direction: column; gap: 20px; backdrop-filter: blur(6px); }
         #loadingOverlay.show { display: flex; }
         #loadingOverlay .loader-text { font-family: 'Courier New', monospace; font-size: 22px; letter-spacing: 4px; color: var(--accent); animation: loaderPulse 1.4s ease-in-out infinite; }
         #loadingOverlay .loader-spinner { width: 48px; height: 48px; border: 3px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.9s linear infinite; }
@@ -442,12 +432,14 @@
         .pdf-toolbar .theme-swatch:hover { border-color: var(--accent); }
         .pdf-toolbar .theme-swatch.active { border-color: var(--accent); box-shadow: 0 0 8px var(--accent); }
         .pdf-toolbar .pdf-label { color: var(--muted); font-size: 11px; font-family: monospace; }
-        .pdf-scroll { flex: 1; overflow: auto; display: flex; justify-content: center; align-items: flex-start; padding: 20px; scrollbar-width: thin; scrollbar-color: var(--accent2) #0d0a06; }
-        .pdf-scroll::-webkit-scrollbar { width: 8px; }
+        .pdf-scroll { flex: 1; position: relative; overflow: auto; display: block; padding: 20px; scrollbar-width: thin; scrollbar-color: var(--accent2) #0d0a06; overscroll-behavior: contain; touch-action: pan-x pan-y; }
+        .pdf-scroll::-webkit-scrollbar { width: 8px; height: 8px; }
         .pdf-scroll::-webkit-scrollbar-track { background: #0d0a06; }
         .pdf-scroll::-webkit-scrollbar-thumb { background: var(--accent2); border-radius: 4px; }
         .pdf-scroll::-webkit-scrollbar-thumb:hover { background: var(--accent); }
-        .pdf-page-holder { position: relative; margin: auto; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.7); }
+        .pdf-page-holder { position: relative; flex: 0 0 auto; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.7); }
+        .pdf-pages { width: max-content; min-width: 100%; margin: 0 auto; display: flex; flex-direction: column; align-items: center; gap: 16px; }
+        .doc-page-content { width: 794px; height: 1123px; padding: 60px 70px; box-sizing: border-box; line-height: 1.8; word-wrap: break-word; overflow: hidden; transform-origin: top left; }
         .pdf-page-holder canvas { display: block; }
         .pdf-text-layer { position: absolute; inset: 0; overflow: hidden; opacity: 0.25; line-height: 1; mix-blend-mode: multiply; }
         .pdf-text-layer.selectable { opacity: 0.2; }
@@ -458,7 +450,7 @@
         .slide-manager-btn { position: fixed; bottom: 44px; left: 50%; transform: translateX(-50%); z-index: 100; background: rgba(13, 10, 6, 0.95); border: 1px solid var(--accent); color: var(--accent); padding: 8px 20px; border-radius: 4px; font-family: 'Courier New', monospace; font-size: 13px; font-weight: bold; letter-spacing: 1px; cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.7); }
         .slide-manager-btn:hover { background: var(--accent); color: #14110c; transform: translateX(-50%) scale(1.05); }
         body.view-mode .slide-manager-btn { display: none !important; }
-        #smModal { position: fixed; inset: 0; z-index: 2500; background: rgba(0, 0, 0, 0.6); display: none; align-items: flex-end; justify-content: center; backdrop-filter: blur(4px); opacity: 0; transition: opacity 0.3s ease; }
+        #smModal { position: fixed; inset: 0; z-index: 10050; background: rgba(0, 0, 0, 0.6); display: none; align-items: flex-end; justify-content: center; backdrop-filter: blur(4px); opacity: 0; transition: opacity 0.3s ease; }
         #smModal.show { display: flex; opacity: 1; }
         .sm-box { background: rgba(13, 10, 6, 0.97); border-top: 2px solid var(--accent); border-radius: 12px 12px 0 0; width: 100%; max-width: 100%; display: flex; flex-direction: column; box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.8); transform: translateY(100%); transition: transform 0.4s cubic-bezier(0.2, 0.9, 0.4, 1.1); }
         #smModal.show .sm-box { transform: translateY(0); }
@@ -507,11 +499,12 @@
         #sizePopup .password-row input[type="checkbox"] { accent-color: var(--accent); width: 16px; height: 16px; cursor: pointer; filter: invert(0.85) sepia(0.3) hue-rotate(10deg); background: rgba(20, 17, 12, 0.8); border: 1px solid var(--border); border-radius: 3px; }
         #sizePopup .password-row .pass-label { font-size: 12px; color: var(--muted); min-width: 50px; }
         #sizePopup .password-row .pass-input-wrap { flex: 1; position: relative; min-width: 80px; }
-        #sizePopup .password-row .pass-input { width: 100%; background: rgba(20, 17, 12, 0.8); border: 1px solid var(--border); border-radius: 4px; color: var(--text); padding: 4px 34px 4px 8px; font-family: 'Courier New', monospace; font-size: 13px; outline: none; transition: border-color 0.2s; box-sizing: border-box; }
+        #sizePopup .password-row .pass-input { width: 100%; background: rgba(20, 17, 12, 0.8); border: 1px solid var(--border); border-radius: 4px; color: var(--text); padding: 4px 36px 4px 8px; font-family: 'Courier New', monospace; font-size: 13px; outline: none; transition: border-color 0.2s; box-sizing: border-box; }
         #sizePopup .password-row .pass-input:focus { border-color: var(--accent); }
         #sizePopup .password-row .pass-input::placeholder { color: var(--muted); opacity: 0.6; }
-        #sizePopup .password-row .pass-eye { position: absolute; right: 6px; top: 50%; transform: translateY(-50%); background: none; border: none; color: var(--muted); cursor: pointer; padding: 2px 4px; font-size: 16px; line-height: 1; transition: color 0.2s; font-family: monospace; }
-        #sizePopup .password-row .pass-eye:hover { color: var(--accent); }
+        #sizePopup .password-row .pass-eye { position: absolute; right: 6px; top: 50%; transform: translateY(-50%); background: none; border: none; color: var(--accent); cursor: pointer; padding: 2px 4px; font-size: 0; line-height: 1; transition: color 0.2s, opacity 0.2s; display: inline-flex; align-items: center; justify-content: center; opacity: 0.85; }
+        #sizePopup .password-row .pass-eye:hover { color: #e6c566; opacity: 1; }
+        #sizePopup .password-row .pass-eye svg { display: block; }
         #sizePopup .popup-hint { font-size: 11px; color: var(--muted); margin-top: 2px; font-style: italic; opacity: 0.7; }
         body.img-effects-soft .photo img, body.img-effects-soft .doc .doc-cover-wrap img, body.img-effects-soft .media-box.has-video video { filter: sepia(0.12) contrast(1.01) brightness(0.98) saturate(0.95) !important; }
         body.img-effects-none .photo img, body.img-effects-none .doc .doc-cover-wrap img, body.img-effects-none .media-box.has-video video { filter: none !important; }
@@ -552,12 +545,8 @@
         @media (prefers-reduced-motion: reduce) {
             * { animation: none !important; transition: none !important; }
         }
-        /* === ANDROID: предотвращаем случайное увеличение страницы === */
         html.is-touch, html.is-touch body { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; overscroll-behavior: none; }
 
-        /* ============================================================
-           ANDROID: обёртка верхней панели, кнопки, слайдеры, стики-ховер
-           ============================================================ */
         html.is-touch .topbar {
             height: auto;
             min-height: 52px;
@@ -586,35 +575,16 @@
         }
         .topbar-right.ui-hidden .action-buttons { display: none !important; }
 
-        /* Кнопки "Глаз" и "Шестерёнка" — только на тач-устройствах */
-        #eyeToggleBtn, #gearSettingsBtn { display: none; }
-        html.is-touch #eyeToggleBtn,
         html.is-touch #gearSettingsBtn { display: inline-block; }
         html.is-touch #settingsTopBtn  { display: none !important; }
-        #eyeToggleBtn {
-            background: rgba(20, 17, 12, 0.8);
-            border: 1px solid var(--border);
-            color: var(--text);
-            padding: 7px 14px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 13px;
-            font-family: 'Courier New', monospace;
-            font-weight: bold;
-            transition: background 0.2s, color 0.2s, border-color 0.2s;
-            line-height: 1.4;
-        }
-        #eyeToggleBtn:hover { background: var(--accent2); color: #fff; }
-        html.is-touch #eyeToggleBtn { padding: 5px 7px; font-size: 10px; }
+        #gearSettingsBtn { display: none; }
 
-        /* Кнопка "управление слайдами" на Android — над "персонажами" */
         html.is-touch .slide-manager-btn {
             bottom: 68px; right: 20px; left: auto; transform: none;
             padding: 10px 14px; font-size: 12px; letter-spacing: 0.5px;
         }
         html.is-touch .slide-manager-btn:hover { transform: scale(1.05); }
 
-        /* Отключение подсветок, фокуса, «залипающих» hover-ов */
         html.is-touch * { -webkit-tap-highlight-color: transparent; }
         html.is-touch button:focus,
         html.is-touch .btn:focus,
@@ -622,7 +592,6 @@
         html.is-touch .handle:focus,
         html.is-touch .swatch:focus { outline: none !important; }
 
-        /* Возврат hover-стилей текстовых элементов к дефолту на тач */
         html.is-touch body.view-mode .text-item:hover {
             background: transparent !important;
             box-shadow: none !important;
@@ -633,48 +602,73 @@
         }
         html.is-touch .swatch:hover { transform: none; }
 
-        /* Кнопка «на весь экран» — только иконка */
-        #fullscreenBtn {
-            font-family: "Segoe UI Symbol", "Arial Unicode MS", sans-serif;
-            font-size: 16px; line-height: 1;
-            min-width: 34px; padding: 4px 8px;
+        .icon-btn, .action-buttons .icon-btn {
+            display: inline-flex; align-items: center; justify-content: center;
+            width: 36px; height: 34px; min-width: 36px; padding: 0; box-sizing: border-box;
+            background: rgba(20, 17, 12, 0.8);
+            border: 1px solid var(--border); border-radius: 4px;
+            color: var(--accent); cursor: pointer;
+            transition: background .2s, border-color .2s, color .2s, box-shadow .2s, transform .1s;
         }
+        .icon-btn svg { width: 20px; height: 20px; display: block; overflow: visible;
+                        filter: drop-shadow(0 0 3px rgba(200, 162, 74, .35)); }
+        #eyeToggleBtn svg { width: 24px; height: 17px; }
+        .icon-btn:hover, .action-buttons .icon-btn:hover {
+            background: rgba(200, 162, 74, .14); border-color: var(--accent);
+            color: #e6c566; box-shadow: 0 0 10px rgba(200, 162, 74, .25);
+        }
+        .icon-btn:active { transform: scale(.93); }
 
-        /* Полный откат hover-подсветок на тач-устройствах */
+        html.is-touch .topbar .icon-btn,
+        html.is-touch .topbar .action-buttons .icon-btn {
+            height: 26px; width: 32px; min-width: 32px; padding: 0;
+        }
+        html.is-touch #eyeToggleBtn svg { width: 20px; height: 14px; }
+        html.is-touch #fullscreenBtn svg { width: 16px; height: 16px; }
+
+        #eyeToggleBtn { display: none; }
+        body.view-mode #eyeToggleBtn { display: inline-flex; }
+
+        #eyeToggleBtn .e-closed { display: none; }
+        #eyeToggleBtn[data-level="1"] .e-iris   { opacity: .45; }
+        #eyeToggleBtn[data-level="1"] .e-lashes { opacity: .45; }
+        #eyeToggleBtn[data-level="2"] .e-open   { display: none; }
+        #eyeToggleBtn[data-level="2"] .e-closed { display: inline; }
+
+        #fullscreenBtn .fs-out { display: none; }
+        #fullscreenBtn.is-fs .fs-in  { display: none; }
+        #fullscreenBtn.is-fs .fs-out { display: inline; }
+
         @media (hover: none) {
-            html.is-touch .btn:hover,
-            html.is-touch .tool-btn:hover,
-            html.is-touch .action-buttons button:hover,
-            html.is-touch .item-toolbar button:hover,
-            html.is-touch .text-toolbar button:hover,
-            html.is-touch .add-menu .menu-item:hover,
+            html.is-touch .btn:not(.active):hover,
+            html.is-touch .tool-btn:not(.active):hover,
+            html.is-touch .action-buttons button:not(.active):hover,
+            html.is-touch .item-toolbar button:not(.active):hover,
+            html.is-touch .text-toolbar button:not(.active):hover,
+            html.is-touch .add-menu .menu-item:not(.active):hover,
             html.is-touch #creaturePanel .creature-item:hover,
             html.is-touch #creaturePanel .creature-item .actions button:hover,
             html.is-touch #creaturePanel .creature-item .size-control button:hover,
             html.is-touch #creaturePanel .panel-actions button:hover,
-            html.is-touch .pdf-toolbar button:hover,
-            html.is-touch .pdf-toolbar .pdf-zoom-display:hover,
+            html.is-touch .pdf-toolbar button:not(.active):hover,
             html.is-touch .sm-actions button:hover,
             html.is-touch #sizePopup .size-btn:hover,
-            html.is-touch #sizePopup .popup-btn:hover,
-            html.is-touch .audio-play-btn:hover,
-            html.is-touch #eyeToggleBtn:hover {
+            html.is-touch #sizePopup .popup-btn:not(.active):hover,
+            html.is-touch .audio-play-btn:not(.playing):hover {
                 background: rgba(20, 17, 12, 0.85);
                 color: var(--text);
                 border-color: var(--border);
                 transform: none;
             }
-            html.is-touch .mode-toggle button:hover {
+            html.is-touch .mode-toggle button:not(.active):hover {
                 background: transparent !important;
                 color: var(--muted) !important;
             }
-            html.is-touch .mode-toggle button.active:hover {
-                background: var(--accent) !important;
-                color: #14110c !important;
-            }
-            html.is-touch .add-main-btn:hover { background: var(--accent2); color: #fff; transform: none; }
+            html.is-touch .add-main-btn:not(.open):hover { background: var(--accent2); color: #fff; transform: none; }
+            html.is-touch .add-main-btn.open,
+            html.is-touch .add-main-btn.open:hover { background: var(--accent); color: #14110c; transform: none; }
             html.is-touch .add-slide-btn:hover { background: var(--accent2); color: #fff; }
-            html.is-touch .theme-swatch:hover { border-color: transparent; }
+            html.is-touch .theme-swatch:not(.active):hover { border-color: transparent; }
             html.is-touch .side-arrow:hover { color: var(--accent); background: rgba(13, 10, 6, 0); opacity: 1 !important; }
             html.is-touch .close-btn:hover,
             html.is-touch .sm-close:hover,
@@ -682,33 +676,70 @@
             html.is-touch #sizePopup .popup-close:hover,
             html.is-touch #passwordModal .modal-box .modal-close:hover { color: var(--muted); background: none; }
             html.is-touch .password-eye:hover,
-            html.is-touch .pass-eye:hover { color: var(--muted); }
+            html.is-touch .pass-eye:hover { color: var(--accent); opacity: 0.9; }
             html.is-touch #creaturesFloatingBtn:hover { background: var(--accent2); color: #fff; transform: none; }
-            html.is-touch .viewer-3d-controls button:hover { background: #14110c; }
+            html.is-touch .viewer-3d-controls button:not(.active):hover { background: #14110c; }
+
+            html.is-touch .action-buttons button.active,
+            html.is-touch .action-buttons button.active:hover,
+            html.is-touch .mode-toggle button.active,
+            html.is-touch .mode-toggle button.active:hover,
+            html.is-touch .viewer-3d-controls button.active,
+            html.is-touch .viewer-3d-controls button.active:hover,
+            html.is-touch .align-btn.active,
+            html.is-touch .align-btn.active:hover {
+                background: var(--accent) !important;
+                color: #14110c !important;
+                border-color: var(--accent) !important;
+            }
+            html.is-touch #sizePopup .popup-btn.active,
+            html.is-touch #sizePopup .popup-btn.active:hover,
+            html.is-touch #toggleCinematicBtn.active,
+            html.is-touch #toggleCinematicBtn.active:hover,
+            html.is-touch #togglePerfBtn.active,
+            html.is-touch #togglePerfBtn.active:hover,
+            html.is-touch #toggleImgEffectsBtn.active,
+            html.is-touch #toggleImgEffectsBtn.active:hover {
+                background: var(--accent2) !important;
+                color: #fff !important;
+                border-color: var(--accent2) !important;
+            }
+            html.is-touch .pdf-toolbar .theme-swatch.active,
+            html.is-touch .pdf-toolbar .theme-swatch.active:hover {
+                border-color: var(--accent) !important;
+                box-shadow: 0 0 8px var(--accent);
+            }
+            html.is-touch .media-box .audio-wrap .audio-play-btn.playing,
+            html.is-touch .media-box .audio-wrap .audio-play-btn.playing:hover {
+                background: var(--accent2) !important;
+                border-color: var(--accent2) !important;
+                color: #fff !important;
+            }
+
+            html.is-touch .action-buttons .icon-btn:hover,
+            html.is-touch #eyeToggleBtn:hover {
+                background: rgba(20, 17, 12, .8) !important;
+                color: var(--accent) !important;
+                border-color: var(--border) !important;
+                box-shadow: none !important;
+            }
         }
 
-        /* ============================================================
-           Слайдер страниц документа / PDF
-           ============================================================ */
-        .page-slider {
-            position: absolute; right: 8px; top: 66px; bottom: 16px;
-            width: 12px; background: rgba(20, 17, 12, 0.55);
-            border: 1px solid var(--border); border-radius: 6px;
-            cursor: pointer; z-index: 465; touch-action: none;
+        html.is-touch #sizePopup {
+            top: 60px;
+            right: 8px;
+            max-height: calc(100vh - 76px);
+            overflow-y: auto;
+            overscroll-behavior: contain;
+            -webkit-overflow-scrolling: touch;
+            padding: 14px 18px 16px;
+            touch-action: pan-y;
         }
-        .page-slider-thumb {
-            position: absolute; left: -1px; right: -1px; height: 30px;
-            background: linear-gradient(180deg, var(--accent), var(--accent2));
-            border-radius: 6px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
-            transition: height 0.15s ease, top 0.15s ease, background 0.2s ease;
-            pointer-events: none;
-        }
-        .page-slider:hover .page-slider-thumb,
-        .page-slider.dragging .page-slider-thumb {
-            background: linear-gradient(180deg, #ffffff, var(--accent));
-        }
-        html.is-touch .page-slider { width: 16px; right: 4px; }
+        html.is-touch #sizePopup::-webkit-scrollbar { width: 4px; }
+        html.is-touch #sizePopup::-webkit-scrollbar-track { background: transparent; }
+        html.is-touch #sizePopup::-webkit-scrollbar-thumb { background: var(--accent2); border-radius: 4px; }
+
+        body.viewer-open #scroller { pointer-events: none !important; touch-action: none !important; }
     </style>
 </head>
 <body class="edit-mode">
@@ -741,9 +772,29 @@
                 <button id="viewModeBtn">ПРОСМОТР</button>
             </div>
         </div>
-        <!-- === ANDROID: добавлены глазик (F) и шестерёнка (Alt+Q), иконка fullscreen === -->
         <div class="topbar-right">
-            <button id="eyeToggleBtn" title="Скрыть/показать интерфейс (F)">👁</button>
+            <button id="eyeToggleBtn" class="icon-btn" data-level="0"
+                    title="Скрыть/показать интерфейс (F)" aria-label="Скрыть интерфейс">
+                <svg viewBox="0 0 32 22" fill="none" aria-hidden="true">
+                    <g class="e-open" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M2 11 C7 4.5 12 3.2 16 3.2 C20 3.2 25 4.5 30 11 C25 17.5 20 18.8 16 18.8 C12 18.8 7 17.5 2 11 Z" stroke-width="1.5"/>
+                        <g class="e-lashes" stroke-width="1.2">
+                            <path d="M10 5.4 L8.7 3"/><path d="M16 3.4 V0.8"/><path d="M22 5.4 L23.3 3"/>
+                        </g>
+                        <g class="e-iris">
+                            <circle cx="16" cy="11" r="4.7" stroke-width="1.3"/>
+                            <path d="M16 7.4 Q17.9 11 16 14.6 Q14.1 11 16 7.4 Z" fill="currentColor" stroke="none"/>
+                            <circle cx="17.6" cy="9.4" r="0.7" fill="#14110c" stroke="none"/>
+                        </g>
+                    </g>
+                    <g class="e-closed" stroke="currentColor" stroke-linecap="round" stroke-width="1.5">
+                        <path d="M2 9.5 C7 16 12 17.8 16 17.8 C20 17.8 25 16 30 9.5"/>
+                        <path d="M9 15.2 L7.8 17.6" stroke-width="1.2"/>
+                        <path d="M16 17.6 V20.4" stroke-width="1.2"/>
+                        <path d="M23 15.2 L24.2 17.6" stroke-width="1.2"/>
+                    </g>
+                </svg>
+            </button>
             <div class="action-buttons" id="viewActions" style="display: none;">
                 <button id="dragPersistBtn">ПЕРЕТАСКИВАНИЕ</button>
                 <button id="resetViewBtn">ВЕРНУТЬ</button>
@@ -752,7 +803,14 @@
                 <button id="gearSettingsBtn" title="Настройки (Alt+Q)">⚙</button>
                 <button id="settingsTopBtn" style="display:none;">НАСТРОЙКИ</button>
                 <button id="perfToggleBtn">ВКЛ ОПТИМИЗАЦИЮ</button>
-                <button id="fullscreenBtn" title="На весь экран">⛶</button>
+                <button id="fullscreenBtn" class="icon-btn" title="На весь экран" aria-label="На весь экран">
+                    <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"
+                         stroke-linecap="square" aria-hidden="true">
+                        <path class="fs-in"  d="M3 7.5 V3 H7.5 M12.5 3 H17 V7.5 M17 12.5 V17 H12.5 M7.5 17 H3 V12.5"/>
+                        <path class="fs-out" d="M7.5 3 V7.5 H3 M17 7.5 H12.5 V3 M12.5 17 V12.5 H17 M3 12.5 H7.5 V17"/>
+                        <path d="M10 7.8 L12.2 10 L10 12.2 L7.8 10 Z" fill="currentColor" stroke="none"/>
+                    </svg>
+                </button>
                 <button id="saveBtn">СОХРАНИТЬ</button>
                 <button id="loadBtn">ЗАГРУЗИТЬ</button>
             </div>
@@ -802,10 +860,16 @@
             <div class="modal-title">ДОСТУП К РЕДАКТОРУ</div>
             <div class="modal-message" id="passwordModalMessage">Пожалуйста, введите пароль</div>
             <div class="password-input-wrap">
-                <!-- === ANDROID: отключаем автокоррекцию/автокапитализацию === -->
                 <input type="password" class="password-input" id="passwordInput" placeholder="Введите пароль"
                        autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false">
-                <button class="password-eye" id="passwordEyeToggle" type="button" aria-label="Показать пароль">👁</button>
+                <button class="password-eye" id="passwordEyeToggle" type="button" aria-label="Показать пароль">
+                    <svg viewBox="0 0 24 16" width="20" height="14" fill="none" aria-hidden="true">
+                        <path d="M1 8 C6 2.6 10 1.6 12 1.6 C14 1.6 18 2.6 23 8 C18 13.4 14 14.4 12 14.4 C10 14.4 6 13.4 1 8 Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+                        <circle cx="12" cy="8" r="3.3" stroke="currentColor" stroke-width="1.3"/>
+                        <path d="M12 5.5 Q13.3 8 12 10.5 Q10.7 8 12 5.5 Z" fill="currentColor"/>
+                        <circle cx="13.2" cy="6.9" r="0.55" fill="#14110c"/>
+                    </svg>
+                </button>
             </div>
             <div class="modal-error" id="passwordError"></div>
             <div class="modal-buttons">
@@ -880,14 +944,7 @@
             <div class="swatch-group" id="pdfThemeSwatches"></div>
         </div>
         <div class="pdf-scroll" id="pdfScroll">
-            <div class="pdf-page-holder" id="pdfPageHolder">
-                <canvas id="pdfCanvas"></canvas>
-                <div class="pdf-text-layer" id="pdfTextLayer"></div>
-            </div>
-        </div>
-        <!-- === Слайдер страниц PDF === -->
-        <div class="page-slider" id="pdfPageSlider">
-            <div class="page-slider-thumb" id="pdfPageSliderThumb"></div>
+            <div class="pdf-pages" id="pdfPages"></div>
         </div>
         <button class="pdf-close" id="pdfClose">✕</button>
     </div>
@@ -904,13 +961,7 @@
             <div class="swatch-group" id="docThemeSwatches"></div>
         </div>
         <div class="pdf-scroll" id="docScroll">
-            <div class="pdf-page-holder" id="docPageHolder">
-                <div id="docContent" style="width:794px;min-height:1123px;padding:60px 70px;box-sizing:border-box;font-family:'Times New Roman',serif;font-size:18px;line-height:1.8;white-space:pre-wrap;word-wrap:break-word;overflow:hidden;"></div>
-            </div>
-        </div>
-        <!-- === Слайдер страниц документа === -->
-        <div class="page-slider" id="docPageSlider">
-            <div class="page-slider-thumb" id="docPageSliderThumb"></div>
+            <div class="pdf-pages" id="docPages"></div>
         </div>
         <button class="pdf-close" id="docClose">✕</button>
     </div>
@@ -952,10 +1003,16 @@
         <div class="password-row">
             <span class="pass-label">Пароль:</span>
             <div class="pass-input-wrap">
-                <!-- === ANDROID: отключаем автокоррекцию/автокапитализацию === -->
                 <input type="password" class="pass-input" id="editorPasswordInput" placeholder="одуванчик"
                        autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false">
-                <button class="pass-eye" id="editorPassEye" type="button" aria-label="Показать пароль">👁</button>
+                <button class="pass-eye" id="editorPassEye" type="button" aria-label="Показать пароль">
+                    <svg viewBox="0 0 24 16" width="18" height="12" fill="none" aria-hidden="true">
+                        <path d="M1 8 C6 2.6 10 1.6 12 1.6 C14 1.6 18 2.6 23 8 C18 13.4 14 14.4 12 14.4 C10 14.4 6 13.4 1 8 Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+                        <circle cx="12" cy="8" r="3.3" stroke="currentColor" stroke-width="1.3"/>
+                        <path d="M12 5.5 Q13.3 8 12 10.5 Q10.7 8 12 5.5 Z" fill="currentColor"/>
+                        <circle cx="13.2" cy="6.9" r="0.55" fill="#14110c"/>
+                    </svg>
+                </button>
             </div>
         </div>
         <div class="popup-hint">Если пароль не установлен — используется «одуванчик»</div>
@@ -993,6 +1050,9 @@
             { name: 'Оригинальный', bg: '#ffffff', text: '#14110c', icon: '🍉', original: true }
         ];
 
+        const SVG_EYE_OPEN_PW = '<svg viewBox="0 0 24 16" width="18" height="12" fill="none" aria-hidden="true"><path d="M1 8 C6 2.6 10 1.6 12 1.6 C14 1.6 18 2.6 23 8 C18 13.4 14 14.4 12 14.4 C10 14.4 6 13.4 1 8 Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><circle cx="12" cy="8" r="3.3" stroke="currentColor" stroke-width="1.3"/><path d="M12 5.5 Q13.3 8 12 10.5 Q10.7 8 12 5.5 Z" fill="currentColor"/><circle cx="13.2" cy="6.9" r="0.55" fill="#14110c"/></svg>';
+        const SVG_EYE_SLASHED_PW = '<svg viewBox="0 0 24 16" width="18" height="12" fill="none" aria-hidden="true"><path d="M1 8 C6 2.6 10 1.6 12 1.6 C14 1.6 18 2.6 23 8 C18 13.4 14 14.4 12 14.4 C10 14.4 6 13.4 1 8 Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><circle cx="12" cy="8" r="3.3" stroke="currentColor" stroke-width="1.3"/><path d="M12 5.5 Q13.3 8 12 10.5 Q10.7 8 12 5.5 Z" fill="currentColor"/><circle cx="13.2" cy="6.9" r="0.55" fill="#14110c"/><line x1="3" y1="0.6" x2="21" y2="15.4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>';
+
         let state = { slides: [], current: 0, mode: 'edit', projectTitle: 'ПОСТПРОСТРАНСТВО' };
         let uid = 1;
         let selectedEls = [];
@@ -1028,6 +1088,23 @@
         function setWillChange(el) { el.style.willChange = 'transform'; }
         function unsetWillChange(el) { el.style.willChange = ''; }
 
+        function isAnyViewerOpen() {
+            return ['viewer', 'pdfViewer', 'docViewer'].some(id => {
+                const el = document.getElementById(id);
+                return el && el.classList.contains('show');
+            });
+        }
+
+        (function initViewerOpenWatcher() {
+            const sync = () => document.body.classList.toggle('viewer-open', isAnyViewerOpen());
+            ['viewer', 'pdfViewer', 'docViewer'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el && typeof MutationObserver !== 'undefined') {
+                    new MutationObserver(sync).observe(el, { attributes: true, attributeFilter: ['class'] });
+                }
+            });
+        })();
+
         function updateFrameScale() {
             const availW = window.innerWidth;
             if (IS_TOUCH) {
@@ -1037,7 +1114,6 @@
             }
             document.documentElement.style.setProperty('--frame-scale', frameScale);
 
-            // === ANDROID/ALL: реальная высота верхней панели (учитывает перенос строк) ===
             const topbarEl = document.querySelector('.topbar');
             const topbarH  = topbarEl ? topbarEl.getBoundingClientRect().height : (52 * frameScale);
             const availH   = window.innerHeight - topbarH;
@@ -1092,7 +1168,6 @@
         document.addEventListener('fullscreenchange', () => {
             setTimeout(updateFrameScale, 50);
         });
-        // === ANDROID: реакция на поворот экрана ===
         window.addEventListener('orientationchange', () => {
             setTimeout(updateFrameScale, 200);
             setTimeout(() => {
@@ -1101,7 +1176,6 @@
             }, 250);
         });
 
-        // === ANDROID: следим за фактической высотой topbar при переносах строк ===
         if (IS_TOUCH) {
             const topbar = document.querySelector('.topbar');
             if (topbar) {
@@ -1147,8 +1221,13 @@
             }
             if (uiHiddenLevel === 2) {
                 tbCenter.style.display = 'none';
-                // Прячем .action-buttons, но глазик остаётся виден
                 tbRight.classList.add('ui-hidden');
+            }
+
+            const eyeBtn = document.getElementById('eyeToggleBtn');
+            if (eyeBtn) {
+                eyeBtn.dataset.level = String(uiHiddenLevel);
+                eyeBtn.setAttribute('aria-label', uiHiddenLevel === 2 ? 'Показать интерфейс' : 'Скрыть интерфейс');
             }
         }
 
@@ -1441,8 +1520,6 @@
             };
 
             const oldContent = item.content;
-            const oldPlate = item.plate;
-            const oldNoFrame = item.noFrame;
 
             const docProps = {};
             if (['pdf', 'doc', 'docx', 'txt'].includes(type)) {
@@ -2443,6 +2520,7 @@
             el.addEventListener('pointerdown', (e) => {
                 if (e.button !== 0) return;
                 if (isAudioControl(e.target)) return;
+                if (window.__multiTouchActive) { e.stopImmediatePropagation(); e.preventDefault(); return; }
                 const isView = state.mode === 'view';
                 const isEditing = state.mode === 'edit';
 
@@ -2460,6 +2538,22 @@
 
                 if (isEditing && e.target.closest('.caption, .text-body') && e.target.isContentEditable) return;
                 e.preventDefault();
+
+                if (isView && IS_TOUCH && e.pointerType === 'touch') {
+                    const snap = { clientX: e.clientX, clientY: e.clientY, pointerId: e.pointerId,
+                                   button: e.button, pointerType: e.pointerType };
+                    let released = false;
+                    const onUp = () => { released = true; };
+                    document.addEventListener('pointerup', onUp, { once: true });
+                    document.addEventListener('pointercancel', onUp, { once: true });
+                    setTimeout(() => {
+                        document.removeEventListener('pointerup', onUp);
+                        document.removeEventListener('pointercancel', onUp);
+                        if (window.__multiTouchActive || released) return;
+                        startViewDrag(el, item, snap);
+                    }, 70);
+                    return;
+                }
 
                 if (isView) startViewDrag(el, item, e);
                 else if (isEditing) startEditDrag(el, item, e);
@@ -2497,6 +2591,7 @@
             if (IS_TOUCH) {
                 el.addEventListener('touchend', (e) => {
                     if (state.mode !== 'view') return;
+                    if (window.__multiTouchActive) { lastTapTime = 0; return; }
                     const now = Date.now();
                     if (now - lastTapTime < 350) {
                         e.preventDefault();
@@ -2661,6 +2756,7 @@
             targets.forEach(e => e.classList.add('dragging-edit'));
 
             function move(ev) {
+                if (window.__multiTouchActive) return;
                 const dx = (ev.clientX - startX) / slideFrameScale;
                 const dy = (ev.clientY - startY) / slideFrameScale;
                 if (Math.abs(dx) > 3 || Math.abs(dy) > 3) moved = true;
@@ -2714,6 +2810,7 @@
             });
 
             function move(ev) {
+                if (window.__multiTouchActive) return;
                 let scaleFactor = Math.hypot(ev.clientX - cx, ev.clientY - cy) / startDist;
                 scaleFactor = Math.max(0.1, Math.min(10, scaleFactor));
                 selectedEls.forEach((el, i) => {
@@ -2768,6 +2865,7 @@
             });
 
             function move(ev) {
+                if (window.__multiTouchActive) return;
                 const ang = Math.atan2(ev.clientY - cy, ev.clientX - cx) * 180 / Math.PI;
                 const deltaAng = ang - startAng;
                 const rad = deltaAng * Math.PI / 180;
@@ -2866,6 +2964,7 @@
             if (scale === 0) return;
 
             function move(ev) {
+                if (window.__multiTouchActive) return;
                 const dx = (ev.clientX - startX) / (scale * slideFrameScale);
                 const dy = (ev.clientY - startY) / (scale * slideFrameScale);
                 const newW = Math.max(60, startW + dx);
@@ -2897,6 +2996,7 @@
             el.classList.add('dragging-view');
 
             function move(ev) {
+                if (window.__multiTouchActive) return;
                 const dx = (ev.clientX - startX) / slideFrameScale;
                 const dy = (ev.clientY - startY) / slideFrameScale;
                 if (Math.abs(dx) > 3 || Math.abs(dy) > 3) moved = true;
@@ -3792,7 +3892,10 @@
             updateSizePopupIfVisible();
         }
 
-        function navSlide(dir) { goToSlide(state.current + dir, true, dir); }
+        function navSlide(dir) {
+            if (isAnyViewerOpen()) return;
+            goToSlide(state.current + dir, true, dir);
+        }
 
         function autoSave() { updateSizePopupIfVisible(); }
 
@@ -4000,10 +4103,14 @@
             });
         }
 
+        // ============================================================
+        //  addSlide: вставляет новый слайд СРАЗУ ПОСЛЕ текущего
+        // ============================================================
         function addSlide() {
-            state.slides.push({ bgPreset: 'bg-stagnation', items: [] });
+            const insertAt = state.current + 1;
+            state.slides.splice(insertAt, 0, { bgPreset: 'bg-stagnation', items: [] });
             fullRender();
-            goToSlide(state.slides.length - 1, true);
+            goToSlide(insertAt, true);
             updateSizePopupIfVisible();
         }
 
@@ -4536,11 +4643,62 @@
             if (pl) pl.remove();
         });
 
+        const CV_PAD = 20;
+
+        function cvPageFromScroll(el, v) {
+            const line = el.scrollTop + el.clientHeight * 0.35;
+            let cur = 1;
+            for (let i = 0; i < v.tops.length; i++) { if (v.tops[i] <= line) cur = i + 1; else break; }
+            const scrollable = el.scrollHeight > el.clientHeight + 2;
+            if (scrollable && el.scrollTop + el.clientHeight >= el.scrollHeight - 2) cur = v.total;
+            return cur;
+        }
+        function cvGoTo(el, v, n, smooth = true) {
+            if (!v.tops.length) return;
+            n = Math.max(1, Math.min(v.total, n));
+            el.scrollTo({ top: Math.max(0, v.tops[n - 1] - CV_PAD), behavior: smooth ? 'smooth' : 'auto' });
+        }
+        function cvNext(el, v) { cvGoTo(el, v, v.page + 1); }
+        function cvPrev(el, v) {
+            const startOfCur = (v.tops[v.page - 1] || 0) - CV_PAD;
+            cvGoTo(el, v, el.scrollTop - startOfCur > 40 ? v.page : v.page - 1);
+        }
+        function cvAttachInput(el, v, o) {
+            let raf = 0;
+            el.addEventListener('scroll', () => {
+                if (raf) return;
+                raf = requestAnimationFrame(() => { raf = 0; o.onScroll(); });
+            }, { passive: true });
+
+            el.addEventListener('wheel', (e) => {
+                e.stopPropagation();
+                if (e.ctrlKey) { e.preventDefault(); o.zoom(e.deltaY < 0 ? 0.15 : -0.15); }
+            }, { passive: false });
+
+            document.addEventListener('keydown', (e) => {
+                if (!o.isOpen()) return;
+                const k = e.key;
+                if (k === 'Escape') { o.close(); return; }
+                if ((e.ctrlKey || e.metaKey) && (k === '=' || k === '+')) { e.preventDefault(); o.zoom(0.2); return; }
+                if ((e.ctrlKey || e.metaKey) && k === '-') { e.preventDefault(); o.zoom(-0.2); return; }
+                if (k === 'ArrowRight') { e.preventDefault(); cvNext(el, v); }
+                else if (k === 'ArrowLeft') { e.preventDefault(); cvPrev(el, v); }
+                else if (k === 'ArrowDown') { e.preventDefault(); el.scrollBy({ top: 120 }); }
+                else if (k === 'ArrowUp') { e.preventDefault(); el.scrollBy({ top: -120 }); }
+                else if (k === 'PageDown') { e.preventDefault(); el.scrollBy({ top: el.clientHeight * 0.9 }); }
+                else if (k === 'PageUp') { e.preventDefault(); el.scrollBy({ top: -el.clientHeight * 0.9 }); }
+                else if (k === 'Home') { e.preventDefault(); el.scrollTo({ top: 0 }); }
+                else if (k === 'End') { e.preventDefault(); el.scrollTo({ top: el.scrollHeight }); }
+            });
+        }
+
         const pdfV = {
             doc: null, page: 1, total: 1,
             zoomMode: 'fit', zoomValue: 1.0, currentScale: 1.0, lastUserZoom: 1.0,
-            item: null, rendering: false
+            item: null, scale: 1, pages: [], tops: []
         };
+
+        const pdfBitmapCache = new Map();
 
         function dataUrlToUint8(dataUrl) {
             const raw = atob(dataUrl.split(',')[1]);
@@ -4564,6 +4722,9 @@
             if (!window.pdfjsLib) { alert('PDF.js не загружен'); return; }
             pdfV.item = item;
             pdfV.page = 1;
+            pdfV.pages = []; pdfV.tops = [];
+            document.getElementById('pdfPages').innerHTML = '';
+            document.getElementById('pdfScroll').scrollTop = 0;
             if (item.pdfZoomMode) { pdfV.zoomMode = item.pdfZoomMode; pdfV.zoomValue = item.pdfZoomValue || 1.0; }
             else { pdfV.zoomMode = 'fit'; pdfV.zoomValue = 1.0; }
             pdfV.currentScale = 1.0;
@@ -4578,8 +4739,8 @@
             }).then(pdf => {
                 pdfV.doc = pdf;
                 pdfV.total = pdf.numPages;
-                renderPdfPage();
-            }).catch(() => alert('Ошибка чтения PDF'));
+                return pdfBuildPages();
+            }).then(() => pdfLayout(false)).catch(() => alert('Ошибка чтения PDF'));
         }
 
         function closePdfViewer() {
@@ -4587,59 +4748,128 @@
             document.getElementById('pdfViewer').classList.remove('show');
             pdfV.doc = null;
             pdfV.item = null;
-            document.getElementById('pdfTextLayer').innerHTML = '';
+            pdfV.pages.forEach(pdfFreePage);
+            pdfV.pages = []; pdfV.tops = [];
+            document.getElementById('pdfPages').innerHTML = '';
+            pdfBitmapCache.clear();
             updateSizePopupIfVisible();
         }
 
-        function computeFitScale(page) {
-            const scroll = document.getElementById('pdfScroll');
-            const vp1 = page.getViewport({ scale: 1 });
-            const availW = scroll.clientWidth - 40;
-            const availH = scroll.clientHeight - 40;
-            return Math.min(availW / vp1.width, availH / vp1.height);
+        function pdfCacheKey(pageNum, scale, ratio) {
+            const it = pdfV.item;
+            return [pageNum, scale.toFixed(3), ratio,
+                    it.pdfOriginal ? 'orig' : (it.pdfBg + '|' + it.pdfText)].join('~');
         }
 
-        function renderPdfPage() {
-            if (!pdfV.doc || pdfV.rendering) return;
-            pdfV.rendering = true;
-            pdfV.doc.getPage(pdfV.page).then(page => {
-                let scale;
-                if (pdfV.zoomMode === 'fit') scale = computeFitScale(page);
-                else if (pdfV.zoomMode === '160') scale = 1.6;
-                else scale = pdfV.zoomValue;
-                pdfV.currentScale = scale;
-                if (pdfV.zoomMode !== 'custom') pdfV.zoomValue = scale;
+        function buildPdfBitmap(pageNum) {
+            return pdfV.doc.getPage(pageNum).then(page => {
+                const scale = pdfV.scale;
+                const ratio = window.devicePixelRatio || 1;
+                const key = pdfCacheKey(pageNum, scale, ratio);
+                if (pdfBitmapCache.has(key)) return { page, scale, key, bmp: pdfBitmapCache.get(key) };
 
                 const vp = page.getViewport({ scale });
-                const canvas = document.getElementById('pdfCanvas');
-                const holder = document.getElementById('pdfPageHolder');
-                const ctx = canvas.getContext('2d');
-                const ratio = window.devicePixelRatio || 1;
-                canvas.width = vp.width * ratio;
-                canvas.height = vp.height * ratio;
-                canvas.style.width = vp.width + 'px';
-                canvas.style.height = vp.height + 'px';
-                holder.style.width = vp.width + 'px';
-                holder.style.height = vp.height + 'px';
-                ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
+                const off = document.createElement('canvas');
+                off.width = Math.round(vp.width * ratio);
+                off.height = Math.round(vp.height * ratio);
+                const octx = off.getContext('2d');
+                octx.setTransform(ratio, 0, 0, ratio, 0, 0);
+                const it = pdfV.item;
+                const bg = it.pdfOriginal ? '#ffffff' : (it.pdfBg || '#ffffff');
 
-                const bg = pdfV.item.pdfOriginal ? '#ffffff' : (pdfV.item.pdfBg || '#ffffff');
-                page.render({ canvasContext: ctx, viewport: vp, background: bg }).promise.then(() => {
-                    renderPdfTextLayer(page, vp);
-                    pdfV.rendering = false;
-                    applyPdfColors();
-                    if (pdfPageSlider) pdfPageSlider.update();
-                }).catch(() => { pdfV.rendering = false; });
-                updatePdfUI();
+                return page.render({ canvasContext: octx, viewport: vp, background: bg }).promise.then(() => {
+                    if (!it.pdfOriginal && it.pdfText) tintCanvas(off, it.pdfText, bg);
+                    pdfBitmapCache.set(key, off);
+                    if (pdfBitmapCache.size > 8) pdfBitmapCache.delete(pdfBitmapCache.keys().next().value);
+                    return { page, scale, key, bmp: off };
+                });
             });
         }
 
-        function renderPdfTextLayer(page, vp) {
-            const layer = document.getElementById('pdfTextLayer');
-            layer.innerHTML = '';
+        function pdfBuildPages() {
+            const doc = pdfV.doc;
+            const jobs = [];
+            for (let n = 1; n <= doc.numPages; n++) {
+                jobs.push(doc.getPage(n).then(p => { const vp = p.getViewport({ scale: 1 }); return { w: vp.width, h: vp.height }; }));
+            }
+            return Promise.all(jobs).then(sizes => {
+                if (pdfV.doc !== doc) return;
+                const frag = document.createDocumentFragment();
+                pdfV.pages = sizes.map((sz, i) => {
+                    const holder = document.createElement('div');
+                    holder.className = 'pdf-page-holder';
+                    const canvas = document.createElement('canvas');
+                    const layer = document.createElement('div');
+                    layer.className = 'pdf-text-layer';
+                    holder.append(canvas, layer);
+                    frag.appendChild(holder);
+                    return { num: i + 1, w: sz.w, h: sz.h, holder, canvas, layer, state: 0, gen: 0 };
+                });
+                document.getElementById('pdfPages').replaceChildren(frag);
+            });
+        }
+
+        function pdfComputeScale() {
+            const p0 = pdfV.pages[0];
+            if (pdfV.zoomMode === 'fit') {
+                const s = document.getElementById('pdfScroll');
+                return Math.min((s.clientWidth - 40) / p0.w, (s.clientHeight - 40) / p0.h);
+            }
+            if (pdfV.zoomMode === '160') return 1.6;
+            return pdfV.zoomValue;
+        }
+
+        function pdfFreePage(p) {
+            p.gen++; p.state = 0;
+            p.canvas.width = 0; p.canvas.height = 0;
+            p.layer.replaceChildren();
+        }
+
+        function pdfLayout(keepPos) {
+            if (!pdfV.doc || !pdfV.item || !pdfV.pages.length) return;
+            const s = document.getElementById('pdfScroll');
+            const idx = pdfV.page - 1;
+            let frac = 0;
+            if (keepPos && pdfV.tops.length) {
+                frac = (s.scrollTop - (pdfV.tops[idx] - CV_PAD)) / (pdfV.pages[idx].holder.offsetHeight || 1);
+            }
+            const scale = pdfComputeScale();
+            pdfV.scale = scale; pdfV.currentScale = scale;
+            if (pdfV.zoomMode !== 'custom') pdfV.zoomValue = scale;
+            pdfV.pages.forEach(p => {
+                pdfFreePage(p);
+                p.holder.style.width = (p.w * scale) + 'px';
+                p.holder.style.height = (p.h * scale) + 'px';
+            });
+            applyPdfColors();
+            pdfV.tops = pdfV.pages.map(p => p.holder.offsetTop);
+            if (keepPos) s.scrollTop = pdfV.tops[idx] - CV_PAD + frac * pdfV.pages[idx].h * scale;
+            pdfUpdateVisible();
+        }
+
+        function pdfRenderPageAt(p) {
+            if (p.state) return;
+            p.state = 1;
+            const gen = p.gen;
+            buildPdfBitmap(p.num).then(({ page, scale, bmp }) => {
+                if (gen !== p.gen || !pdfV.item) return;
+                const vp = page.getViewport({ scale });
+                p.canvas.width = bmp.width; p.canvas.height = bmp.height;
+                p.canvas.getContext('2d').drawImage(bmp, 0, 0);
+                p.canvas.style.width = vp.width + 'px';
+                p.canvas.style.height = vp.height + 'px';
+                p.state = 2;
+                renderPdfTextLayer(page, vp, p, gen);
+            }).catch(() => { if (gen === p.gen) p.state = 0; });
+        }
+
+        function renderPdfTextLayer(page, vp, p, gen) {
+            const layer = p.layer;
             layer.style.width = vp.width + 'px';
             layer.style.height = vp.height + 'px';
             page.getTextContent().then(tc => {
+                if (gen !== p.gen) return;
+                const frag = document.createDocumentFragment();
                 tc.items.forEach(it => {
                     const span = document.createElement('span');
                     const tx = pdfjsLib.Util.transform(vp.transform, it.transform);
@@ -4649,9 +4879,25 @@
                     span.style.top = (tx[5] - fontSize) + 'px';
                     span.style.fontSize = fontSize + 'px';
                     span.style.fontFamily = 'sans-serif';
-                    layer.appendChild(span);
+                    frag.appendChild(span);
                 });
+                layer.replaceChildren(frag);
             });
+        }
+
+        function pdfUpdateVisible() {
+            if (!pdfV.doc || !pdfV.pages.length) return;
+            const s = document.getElementById('pdfScroll');
+            const vh = s.clientHeight, top = s.scrollTop, bottom = top + vh, mid = top + vh / 2;
+            const need = [];
+            pdfV.pages.forEach((p, i) => {
+                const t = pdfV.tops[i], b = t + p.h * pdfV.scale;
+                if (b > top - vh && t < bottom + vh * 1.5) need.push({ p, d: Math.abs((t + b) / 2 - mid) });
+                else if (p.state && (b < top - vh * 3 || t > bottom + vh * 4)) pdfFreePage(p);
+            });
+            need.sort((a, b) => a.d - b.d).forEach(x => pdfRenderPageAt(x.p));
+            pdfV.page = cvPageFromScroll(s, pdfV);
+            updatePdfUI();
         }
 
         function updatePdfUI() {
@@ -4662,8 +4908,8 @@
             else zd.textContent = Math.round(pdfV.zoomValue * 100) + '%';
         }
 
-        function pdfNext() { if (pdfV.page < pdfV.total) { pdfV.page++; renderPdfPage(); } }
-        function pdfPrev() { if (pdfV.page > 1) { pdfV.page--; renderPdfPage(); } }
+        function pdfNext() { cvNext(document.getElementById('pdfScroll'), pdfV); }
+        function pdfPrev() { cvPrev(document.getElementById('pdfScroll'), pdfV); }
 
         function pdfZoom(delta) {
             let base = pdfV.currentScale;
@@ -4671,14 +4917,14 @@
             pdfV.zoomValue = newScale;
             pdfV.zoomMode = 'custom';
             pdfV.lastUserZoom = newScale;
-            renderPdfPage();
+            pdfLayout(true);
         }
 
         function pdfToggleZoom() {
             if (pdfV.zoomMode === 'fit') pdfV.zoomMode = '160';
             else if (pdfV.zoomMode === '160') { pdfV.zoomMode = 'custom'; pdfV.zoomValue = pdfV.lastUserZoom || pdfV.currentScale; }
             else pdfV.zoomMode = 'fit';
-            renderPdfPage();
+            pdfLayout(true);
         }
 
         function buildPdfThemes() {
@@ -4697,8 +4943,9 @@
                     pdfV.item.pdfBg = theme.bg;
                     pdfV.item.pdfText = theme.text;
                     pdfV.item.pdfOriginal = !!theme.original;
+                    pdfBitmapCache.clear();
                     applyPdfColors();
-                    renderPdfPage();
+                    pdfLayout(true);
                     autoSave();
                     wrap.querySelectorAll('.theme-swatch').forEach(el => el.classList.remove('active'));
                     sw.classList.add('active');
@@ -4709,29 +4956,20 @@
         }
 
         function applyPdfColors() {
-            const holder = document.getElementById('pdfPageHolder');
-            const canvas = document.getElementById('pdfCanvas');
-            if (pdfV.item.pdfOriginal) { holder.style.background = '#ffffff'; canvas.style.filter = ''; delete canvas.dataset.tint; return; }
-            const bg = pdfV.item.pdfBg || '#ffffff';
-            holder.style.background = bg;
-            if (pdfV.item.pdfText) { canvas.dataset.tint = pdfV.item.pdfText; applyTextTint(); }
-            else { canvas.style.filter = ''; delete canvas.dataset.tint; }
+            const bg = pdfV.item.pdfOriginal ? '#ffffff' : (pdfV.item.pdfBg || '#ffffff');
+            pdfV.pages.forEach(p => { p.canvas.style.filter = ''; p.holder.style.background = bg; });
         }
 
-        function applyTextTint() {
-            const canvas = document.getElementById('pdfCanvas');
-            const tint = canvas.dataset.tint;
-            if (!tint) return;
+        function tintCanvas(canvas, tint, bgHex) {
             const ctx = canvas.getContext('2d');
             try {
                 const img = ctx.getImageData(0, 0, canvas.width, canvas.height);
                 const d = img.data;
-                const tc = hexToRgb(tint);
-                const bg = hexToRgb(pdfV.item.pdfBg || '#ffffff');
+                const tc = hexToRgb(tint), bg = hexToRgb(bgHex);
                 for (let i = 0; i < d.length; i += 4) {
-                    const lum = (d[i] * 0.299 + d[i + 1] * 0.587 + d[i + 2] * 0.114);
+                    const lum = d[i] * 0.299 + d[i + 1] * 0.587 + d[i + 2] * 0.114;
                     const t = 1 - lum / 255;
-                    d[i] = Math.round(bg.r + (tc.r - bg.r) * t);
+                    d[i]     = Math.round(bg.r + (tc.r - bg.r) * t);
                     d[i + 1] = Math.round(bg.g + (tc.g - bg.g) * t);
                     d[i + 2] = Math.round(bg.b + (tc.b - bg.b) * t);
                 }
@@ -4750,7 +4988,7 @@
             item: null, type: null, data: null, fileName: null,
             pages: [], page: 1, total: 1,
             zoomMode: 'fit', zoomValue: 1.0, currentScale: 1.0, lastUserZoom: 1.0,
-            _isPlain: false
+            _isPlain: false, tops: [], els: []
         };
         const PAGE_W = 794, PAGE_H = 1123;
 
@@ -4762,6 +5000,9 @@
             docV2.data = item.src;
             docV2.fileName = item.fileName || item.content || 'документ';
             docV2.page = 1;
+            docV2.tops = []; docV2.els = [];
+            document.getElementById('docPages').innerHTML = '';
+            document.getElementById('docScroll').scrollTop = 0;
             docV2.zoomMode = item.pdfZoomMode || 'fit';
             docV2.zoomValue = item.pdfZoomValue || 1.0;
             docV2.lastUserZoom = (item.pdfZoomMode === 'custom' && item.pdfZoomValue) ? item.pdfZoomValue : 1.0;
@@ -4777,16 +5018,16 @@
                     for (let i = 0; i < bytes.length; i++) raw += String.fromCharCode(bytes[i]);
                     const text = decodeURIComponent(escape(raw));
                     paginateText(text, true);
-                    renderDocPage();
-                }).catch(() => { paginateText('Не удалось прочитать текстовый файл.', true); renderDocPage(); });
+                    renderDocPages();
+                }).catch(() => { paginateText('Не удалось прочитать текстовый файл.', true); renderDocPages(); });
             } else if (type === 'docx') {
                 resolveItemArrayBuffer(docV2.data).then(arrayBuffer => {
                     if (window.mammoth) {
                         return mammoth.convertToHtml({ arrayBuffer })
-                            .then(result => { paginateHtml(result.value); renderDocPage(); })
-                            .catch(() => { paginateText('Не удалось прочитать .docx файл.', true); renderDocPage(); });
-                    } else { paginateText('Библиотека для .docx не загружена.', true); renderDocPage(); }
-                }).catch(() => { paginateText('Не удалось прочитать .docx файл.', true); renderDocPage(); });
+                            .then(result => { paginateHtml(result.value); renderDocPages(); })
+                            .catch(() => { paginateText('Не удалось прочитать .docx файл.', true); renderDocPages(); });
+                    } else { paginateText('Библиотека для .docx не загружена.', true); renderDocPages(); }
+                }).catch(() => { paginateText('Не удалось прочитать .docx файл.', true); renderDocPages(); });
             } else {
                 resolveItemArrayBuffer(docV2.data).then(buffer => {
                     const bytes = new Uint8Array(buffer);
@@ -4794,8 +5035,8 @@
                     for (let i = 0; i < bytes.length; i++) raw += String.fromCharCode(bytes[i]);
                     const text = raw.replace(/[^\x09\x0A\x0D\x20-\x7Eа-яА-ЯёЁ]/g, ' ').replace(/\s{3,}/g, '\n\n');
                     paginateText(text.trim() || 'Документ .doc — отображение ограничено.', true);
-                    renderDocPage();
-                }).catch(() => { paginateText('Не удалось прочитать .doc файл.', true); renderDocPage(); });
+                    renderDocPages();
+                }).catch(() => { paginateText('Не удалось прочитать .doc файл.', true); renderDocPages(); });
             }
             updateSizePopupIfVisible();
         }
@@ -4854,54 +5095,79 @@
             return Math.min(availW / PAGE_W, availH / PAGE_H);
         }
 
-        function renderDocPage() {
-            const holder = document.getElementById('docPageHolder');
-            const content = document.getElementById('docContent');
+        function renderDocPages() {
+            const frag = document.createDocumentFragment();
+            docV2.els = docV2.pages.map(txt => {
+                const holder = document.createElement('div');
+                holder.className = 'pdf-page-holder';
+                const content = document.createElement('div');
+                content.className = 'doc-page-content';
+                content.style.fontFamily = docV2._isPlain ? 'monospace' : "'Times New Roman',serif";
+                content.style.fontSize = docV2._isPlain ? '16px' : '18px';
+                content.style.whiteSpace = docV2._isPlain ? 'pre-wrap' : 'normal';
+                if (docV2._isPlain) content.textContent = txt; else content.innerHTML = txt;
+                holder.appendChild(content);
+                frag.appendChild(holder);
+                return { holder, content };
+            });
+            document.getElementById('docPages').replaceChildren(frag);
+            layoutDocPages(false);
+        }
+
+        function layoutDocPages(keepPos) {
             const item = docV2.item;
+            if (!item || !docV2.els.length) return;
+            const s = document.getElementById('docScroll');
+            const idx = docV2.page - 1;
+            let frac = 0;
+            if (keepPos && docV2.tops.length) {
+                frac = (s.scrollTop - (docV2.tops[idx] - CV_PAD)) / (docV2.els[idx].holder.offsetHeight || 1);
+            }
             let scale;
             if (docV2.zoomMode === 'fit') scale = computeDocFitScale();
             else if (docV2.zoomMode === '160') scale = 1.6;
             else scale = docV2.zoomValue;
             docV2.currentScale = scale;
             if (docV2.zoomMode !== 'custom') docV2.zoomValue = scale;
-            holder.style.width = (PAGE_W * scale) + 'px';
-            holder.style.height = (PAGE_H * scale) + 'px';
-            if (item.pdfOriginal) { holder.style.background = '#ffffff'; content.style.color = '#14110c'; }
-            else { holder.style.background = item.pdfBg || '#ffffff'; content.style.color = item.pdfText || '#14110c'; }
-            content.style.width = PAGE_W + 'px';
-            content.style.minHeight = PAGE_H + 'px';
-            content.style.transform = `scale(${scale})`;
-            content.style.transformOrigin = 'top left';
-            content.style.fontFamily = docV2._isPlain ? 'monospace' : "'Times New Roman',serif";
-            content.style.fontSize = docV2._isPlain ? '16px' : '18px';
-            content.style.whiteSpace = docV2._isPlain ? 'pre-wrap' : 'normal';
-            const pageHtml = docV2.pages[docV2.page - 1] || '';
-            if (docV2._isPlain) content.textContent = pageHtml;
-            else content.innerHTML = pageHtml;
+            const bg = item.pdfOriginal ? '#ffffff' : (item.pdfBg || '#ffffff');
+            const fg = item.pdfOriginal ? '#14110c' : (item.pdfText || '#14110c');
+            docV2.els.forEach(({ holder, content }) => {
+                holder.style.width = (PAGE_W * scale) + 'px';
+                holder.style.height = (PAGE_H * scale) + 'px';
+                holder.style.background = bg;
+                content.style.color = fg;
+                content.style.transform = `scale(${scale})`;
+            });
+            docV2.tops = docV2.els.map(e => e.holder.offsetTop);
+            if (keepPos) s.scrollTop = docV2.tops[idx] - CV_PAD + frac * PAGE_H * scale;
+            docUpdateCurrent();
+        }
+
+        function docUpdateCurrent() {
+            docV2.page = cvPageFromScroll(document.getElementById('docScroll'), docV2);
             document.getElementById('docPageInfo').textContent = docV2.page + ' / ' + docV2.total;
             const zd = document.getElementById('docZoomDisplay');
             if (docV2.zoomMode === 'fit') zd.textContent = 'Вписать';
             else if (docV2.zoomMode === '160') zd.textContent = '160%';
             else zd.textContent = Math.round(docV2.zoomValue * 100) + '%';
-            if (docPageSlider) docPageSlider.update();
         }
 
-        function docNextPage() { if (docV2.page < docV2.total) { docV2.page++; renderDocPage(); } }
-        function docPrevPage() { if (docV2.page > 1) { docV2.page--; renderDocPage(); } }
+        function docNextPage() { cvNext(document.getElementById('docScroll'), docV2); }
+        function docPrevPage() { cvPrev(document.getElementById('docScroll'), docV2); }
 
         function docZoom(delta) {
             let base = docV2.currentScale;
             docV2.zoomValue = Math.max(0.2, Math.min(6, base + delta));
             docV2.zoomMode = 'custom';
             docV2.lastUserZoom = docV2.zoomValue;
-            renderDocPage();
+            layoutDocPages(true);
         }
 
         function docToggleZoom() {
             if (docV2.zoomMode === 'fit') docV2.zoomMode = '160';
             else if (docV2.zoomMode === '160') { docV2.zoomMode = 'custom'; docV2.zoomValue = docV2.lastUserZoom || docV2.currentScale; }
             else docV2.zoomMode = 'fit';
-            renderDocPage();
+            layoutDocPages(true);
         }
 
         function buildDocThemes() {
@@ -4920,7 +5186,7 @@
                     docV2.item.pdfBg = theme.bg;
                     docV2.item.pdfText = theme.text;
                     docV2.item.pdfOriginal = !!theme.original;
-                    renderDocPage();
+                    layoutDocPages(true);
                     wrap.querySelectorAll('.theme-swatch').forEach(el => el.classList.remove('active'));
                     sw.classList.add('active');
                     updateSizePopupIfVisible();
@@ -4934,60 +5200,23 @@
             document.getElementById('docViewer').classList.remove('show');
             docV2.item = null;
             docV2.pages = [];
+            docV2.els = []; docV2.tops = [];
+            document.getElementById('docPages').innerHTML = '';
             updateSizePopupIfVisible();
         }
 
         document.getElementById('docClose').addEventListener('click', closeDocViewer);
-        document.getElementById('docNext').addEventListener('click', docNextPage);
-        document.getElementById('docPrev').addEventListener('click', docPrevPage);
+        document.getElementById('docNext').addEventListener('click', () => docNextPage());
+        document.getElementById('docPrev').addEventListener('click', () => docPrevPage());
         document.getElementById('docZoomIn').addEventListener('click', () => docZoom(0.2));
         document.getElementById('docZoomOut').addEventListener('click', () => docZoom(-0.2));
         document.getElementById('docZoomDisplay').addEventListener('click', docToggleZoom);
 
-        document.getElementById('docScroll').addEventListener('wheel', (e) => {
-            e.stopPropagation();
-            if (e.ctrlKey) { e.preventDefault(); docZoom(e.deltaY < 0 ? 0.15 : -0.15); return; }
-            const scroll = e.currentTarget;
-            const fitsVert = scroll.scrollHeight <= scroll.clientHeight + 4;
-            if (fitsVert) { e.preventDefault(); if (e.deltaY > 0) docNextPage(); else docPrevPage(); }
-            else {
-                const atBottom = scroll.scrollTop + scroll.clientHeight >= scroll.scrollHeight - 2;
-                const atTop = scroll.scrollTop <= 2;
-                if (e.deltaY > 0 && atBottom) { e.preventDefault(); docNextPage(); }
-                else if (e.deltaY < 0 && atTop) { e.preventDefault(); docPrevPage(); }
-            }
-        }, { passive: false });
-
-        // === Стрелки документа: ↓/↑ — скролл до конца + перелистывание, ←/→ — перелистывание ===
-        document.addEventListener('keydown', (e) => {
-            const viewer = document.getElementById('docViewer');
-            if (!viewer.classList.contains('show')) return;
-            const scroll = document.getElementById('docScroll');
-
-            if (e.key === 'ArrowRight') { e.preventDefault(); docNextPage(); return; }
-            if (e.key === 'ArrowLeft')  { e.preventDefault(); docPrevPage(); return; }
-            if (e.key === 'Escape')     { closeDocViewer(); return; }
-
-            if (e.key === 'ArrowDown' || e.key === 'PageDown') {
-                e.preventDefault();
-                const fits     = scroll.scrollHeight <= scroll.clientHeight + 4;
-                const atBottom = scroll.scrollTop + scroll.clientHeight >= scroll.scrollHeight - 5;
-                if (fits || atBottom) docNextPage();
-                else scroll.scrollBy({ top: 120, behavior: 'auto' });
-                return;
-            }
-            if (e.key === 'ArrowUp' || e.key === 'PageUp') {
-                e.preventDefault();
-                const fits  = scroll.scrollHeight <= scroll.clientHeight + 4;
-                const atTop = scroll.scrollTop <= 5;
-                if (fits || atTop) docPrevPage();
-                else scroll.scrollBy({ top: -120, behavior: 'auto' });
-            }
-        });
-
         window.addEventListener('resize', () => {
-            if (document.getElementById('docViewer').classList.contains('show') && docV2.zoomMode === 'fit') renderDocPage();
-            if (document.getElementById('pdfViewer').classList.contains('show') && pdfV.zoomMode === 'fit') renderPdfPage();
+            if (document.getElementById('docViewer').classList.contains('show') && docV2.zoomMode === 'fit') layoutDocPages(true);
+            if (document.getElementById('pdfViewer').classList.contains('show')) {
+                if (pdfV.zoomMode === 'fit') pdfLayout(true); else pdfUpdateVisible();
+            }
             updateFrameScale();
         });
 
@@ -5210,11 +5439,10 @@
 
         const fullscreenBtn = document.getElementById('fullscreenBtn');
         if (fullscreenBtn) {
-            // === Единый синк иконки fullscreen ===
             function syncFullscreenBtnLabel() {
-                fullscreenBtn.textContent = document.fullscreenElement ? '⤡' : '⛶';
-                fullscreenBtn.title = document.fullscreenElement
-                    ? 'Выйти из полного экрана' : 'На весь экран';
+                fullscreenBtn.classList.toggle('is-fs', !!document.fullscreenElement);
+                fullscreenBtn.title = document.fullscreenElement ? 'Выйти из полного экрана' : 'На весь экран';
+                fullscreenBtn.setAttribute('aria-label', document.fullscreenElement ? 'Выйти из полного экрана' : 'На весь экран');
             }
             syncFullscreenBtnLabel();
 
@@ -5230,11 +5458,17 @@
                     const scroller = document.getElementById('scroller');
                     scroller.scrollTo({ left: state.current * window.innerWidth, behavior: 'auto' });
                     if (selectedEls.length > 0) showCtrlOverlay(selectedEls);
-                    if (document.getElementById('pdfViewer').classList.contains('show') && pdfV.zoomMode === 'fit') renderPdfPage();
-                    if (document.getElementById('docViewer').classList.contains('show') && docV2.zoomMode === 'fit') renderDocPage();
+                    if (document.getElementById('pdfViewer').classList.contains('show') && pdfV.zoomMode === 'fit') pdfLayout(true);
+                    if (document.getElementById('docViewer').classList.contains('show') && docV2.zoomMode === 'fit') layoutDocPages(true);
                 });
             }
             document.addEventListener('fullscreenchange', handleFullscreenChange);
+        }
+
+        if (IS_TOUCH) {
+            document.body.classList.add('low-perf');
+            const _pbInit = document.getElementById('perfToggleBtn');
+            if (_pbInit) _pbInit.textContent = 'ВЫКЛ ОПТИМИЗАЦИЮ';
         }
 
         document.getElementById('perfToggleBtn').addEventListener('click', function() {
@@ -5334,15 +5568,11 @@
 
         let wheelAccum = 0, wheelLock = false;
         document.addEventListener('wheel', e => {
+            if (isAnyViewerOpen()) return;
             const ae = document.activeElement;
             if (ae && ae.getAttribute('contenteditable') === 'true') return;
             const panel = document.getElementById('creaturePanel');
             if (panel && panel.classList.contains('show') && panel.contains(e.target)) return;
-
-            const viewerOpen = document.getElementById('viewer').classList.contains('show');
-            const pdfOpen = document.getElementById('pdfViewer').classList.contains('show');
-            const docOpen = document.getElementById('docViewer').classList.contains('show');
-            if (viewerOpen || pdfOpen || docOpen) { if (viewerOpen) e.preventDefault(); return; }
 
             e.preventDefault();
             if (wheelLock) return;
@@ -5358,7 +5588,6 @@
             window.wheelTimer = setTimeout(() => wheelAccum = 0, 150);
         }, { passive: false });
 
-        // === Alt+Q вынесено в функцию, вызывается и из шестерёнки ===
         function handleAltQ() {
             if (state.mode === 'edit') { toggleSizePopup(); return; }
             if (window.__EMBEDDED_PROJECT__ && !editorAccessGranted) {
@@ -5532,56 +5761,12 @@
         });
 
         document.getElementById('pdfClose').addEventListener('click', closePdfViewer);
-        document.getElementById('pdfNext').addEventListener('click', pdfNext);
-        document.getElementById('pdfPrev').addEventListener('click', pdfPrev);
+        document.getElementById('pdfNext').addEventListener('click', () => pdfNext());
+        document.getElementById('pdfPrev').addEventListener('click', () => pdfPrev());
         document.getElementById('pdfZoomIn').addEventListener('click', () => pdfZoom(0.2));
         document.getElementById('pdfZoomOut').addEventListener('click', () => pdfZoom(-0.2));
         document.getElementById('pdfZoomDisplay').addEventListener('click', pdfToggleZoom);
 
-        document.getElementById('pdfScroll').addEventListener('wheel', (e) => {
-            e.stopPropagation();
-            if (e.ctrlKey) { e.preventDefault(); pdfZoom(e.deltaY < 0 ? 0.15 : -0.15); return; }
-            const scroll = e.currentTarget;
-            const fitsVert = scroll.scrollHeight <= scroll.clientHeight + 4;
-            if (fitsVert) { e.preventDefault(); if (e.deltaY > 0) pdfNext(); else pdfPrev(); }
-            else {
-                const atBottom = scroll.scrollTop + scroll.clientHeight >= scroll.scrollHeight - 2;
-                const atTop = scroll.scrollTop <= 2;
-                if (e.deltaY > 0 && atBottom) { e.preventDefault(); pdfNext(); }
-                else if (e.deltaY < 0 && atTop) { e.preventDefault(); pdfPrev(); }
-            }
-        }, { passive: false });
-
-        // === Стрелки PDF: ↓/↑ — скролл + перелистывание, ←/→ — перелистывание ===
-        document.addEventListener('keydown', (e) => {
-            const viewer = document.getElementById('pdfViewer');
-            if (!viewer.classList.contains('show')) return;
-            const scroll = document.getElementById('pdfScroll');
-
-            if (e.key === 'ArrowRight') { e.preventDefault(); pdfNext(); return; }
-            if (e.key === 'ArrowLeft')  { e.preventDefault(); pdfPrev(); return; }
-            if (e.key === 'Escape')     { closePdfViewer(); return; }
-            if ((e.ctrlKey || e.metaKey) && e.key === '=') { e.preventDefault(); pdfZoom(0.2); return; }
-            if ((e.ctrlKey || e.metaKey) && e.key === '-') { e.preventDefault(); pdfZoom(-0.2); return; }
-
-            if (e.key === 'ArrowDown' || e.key === 'PageDown') {
-                e.preventDefault();
-                const fits     = scroll.scrollHeight <= scroll.clientHeight + 4;
-                const atBottom = scroll.scrollTop + scroll.clientHeight >= scroll.scrollHeight - 5;
-                if (fits || atBottom) pdfNext();
-                else scroll.scrollBy({ top: 120, behavior: 'auto' });
-                return;
-            }
-            if (e.key === 'ArrowUp' || e.key === 'PageUp') {
-                e.preventDefault();
-                const fits  = scroll.scrollHeight <= scroll.clientHeight + 4;
-                const atTop = scroll.scrollTop <= 5;
-                if (fits || atTop) pdfPrev();
-                else scroll.scrollBy({ top: -120, behavior: 'auto' });
-            }
-        });
-
-        // === ИНТРО (переписана ветка для Android) ===
         (function initIntro() {
             const screen = document.getElementById('introScreen');
             const btn = document.getElementById('introBtn');
@@ -5636,16 +5821,51 @@
             });
 
             if (IS_TOUCH) {
-                // На Android: убегание от пальца + перетаскивание + прилипание к слоту.
-                // Кнопка не использует transform — устранён конфликт с introPulse.
+                const VELOCITY_BASE = 70;
+                let velX = (Math.random() < 0.5 ? -1 : 1) * VELOCITY_BASE;
+                let velY = (Math.random() < 0.5 ? -1 : 1) * VELOCITY_BASE * 0.7;
+                let wanderRAF = null;
+                let lastT = 0;
+                let isHeld = false;
+
                 function layout() {
+                    const s = window.frameScale || 1;
                     const r = btn.getBoundingClientRect();
-                    const w = r.width  || 320;
-                    const h = r.height || 70;
+                    const w = r.width  || 320 * s;
+                    const h = r.height || 70  * s;
                     place(window.innerWidth - w - 24, window.innerHeight - h - 24);
                 }
                 layout();
                 window.addEventListener('resize', layout);
+
+                function startWander() {
+                    if (wanderRAF) return;
+                    lastT = performance.now();
+                    const step = (t) => {
+                        wanderRAF = requestAnimationFrame(step);
+                        if (isHeld || armed || alreadyUsed) { lastT = t; return; }
+                        const dt = Math.min((t - lastT) / 1000, 0.05);
+                        lastT = t;
+                        const s = window.frameScale || 1;
+                        const r = btn.getBoundingClientRect();
+                        const w = r.width, h = r.height;
+                        let nx = (parseFloat(btn.style.left) * s) + velX * dt;
+                        let ny = (parseFloat(btn.style.top)  * s) + velY * dt;
+                        const minX = 12, maxX = window.innerWidth - w - 12;
+                        const minY = 90, maxY = window.innerHeight - h - 12;
+                        if (nx < minX) { nx = minX; velX = Math.abs(velX); }
+                        else if (nx > maxX) { nx = maxX; velX = -Math.abs(velX); }
+                        if (ny < minY) { ny = minY; velY = Math.abs(velY); }
+                        else if (ny > maxY) { ny = maxY; velY = -Math.abs(velY); }
+                        place(nx, ny);
+                    };
+                    wanderRAF = requestAnimationFrame(step);
+                }
+                function stopWander() {
+                    if (wanderRAF) { cancelAnimationFrame(wanderRAF); wanderRAF = null; }
+                }
+
+                startWander();
 
                 screen.addEventListener('touchstart', (e) => {
                     if (armed || alreadyUsed || dragging) return;
@@ -5671,6 +5891,8 @@
                     if (armed || alreadyUsed || e.touches.length !== 1) return;
                     e.preventDefault();
                     dragging = true;
+                    isHeld = true;
+                    stopWander();
                     btn.classList.remove('runaway');
                     btn.classList.add('dragging');
                     const r = btn.getBoundingClientRect();
@@ -5691,6 +5913,7 @@
                 btn.addEventListener('touchend', () => {
                     if (!dragging) return;
                     dragging = false;
+                    isHeld = false;
                     btn.classList.remove('dragging');
                     const c  = btnCenter();
                     const sc = centerOfSlot();
@@ -5704,9 +5927,11 @@
                             btn.classList.remove('snapping');
                             btn.classList.add('armed');
                             btn.textContent = 'ЗАГРУЗИТЬ ▸';
+                            setTimeout(() => { if (!alreadyUsed) btn.click(); }, 320);
                         }, 300);
                     } else {
                         slot.classList.remove('armed');
+                        if (!armed) startWander();
                     }
                 });
 
@@ -6044,9 +6269,7 @@
             eyeBtn.addEventListener('click', () => {
                 eyeVisible = !eyeVisible;
                 inputField.type = eyeVisible ? 'text' : 'password';
-                eyeBtn.innerHTML = eyeVisible ?
-                    '<span style="position:relative; display:inline-block;">👁<span style="position:absolute; left:-1px; right:-1px; top:50%; height:1.5px; background:currentColor; transform:rotate(-45deg);"></span></span>' :
-                    '👁';
+                eyeBtn.innerHTML = eyeVisible ? SVG_EYE_SLASHED_PW : SVG_EYE_OPEN_PW;
             });
         })();
 
@@ -6057,9 +6280,7 @@
             eyeBtn.addEventListener('click', () => {
                 visible = !visible;
                 inputField.type = visible ? 'text' : 'password';
-                eyeBtn.innerHTML = visible ?
-                    '<span style="position:relative; display:inline-block;">👁<span style="position:absolute; left:-1px; right:-1px; top:50%; height:1.5px; background:currentColor; transform:rotate(-45deg);"></span></span>' :
-                    '👁';
+                eyeBtn.innerHTML = visible ? SVG_EYE_SLASHED_PW.replace('width="18" height="12"', 'width="20" height="14"') : SVG_EYE_OPEN_PW.replace('width="18" height="12"', 'width="20" height="14"');
             });
         })();
 
@@ -6250,83 +6471,44 @@
             }
         });
 
-        // ============================================================
-        // === Слайдеры страниц для PDF и DOC ===
-        // ============================================================
-        function setupPageSlider(sliderId, thumbId, stateObj, renderFn) {
-            const slider = document.getElementById(sliderId);
-            const thumb  = document.getElementById(thumbId);
-            if (!slider || !thumb) return null;
-
-            function update() {
-                const trackH = slider.clientHeight;
-                const thumbH = Math.max(20, trackH / Math.max(1, stateObj.total));
-                thumb.style.height = thumbH + 'px';
-                thumb.style.top = ((stateObj.page - 1) / Math.max(1, stateObj.total - 1))
-                                  * Math.max(0, trackH - thumbH) + 'px';
-            }
-
-            let dragging = false;
-            function seek(clientY) {
-                const r  = slider.getBoundingClientRect();
-                const th = thumb.offsetHeight;
-                const y  = Math.max(0, Math.min(r.height - th, clientY - r.top - th / 2));
-                const ratio = (r.height - th) > 0 ? y / (r.height - th) : 0;
-                const page  = Math.max(1, Math.min(stateObj.total, Math.round(ratio * (stateObj.total - 1)) + 1));
-                if (page !== stateObj.page) { stateObj.page = page; renderFn(); }
-            }
-
-            slider.addEventListener('mousedown', (e) => {
-                dragging = true; slider.classList.add('dragging'); seek(e.clientY); e.preventDefault();
-            });
-            document.addEventListener('mousemove', (e) => { if (dragging) seek(e.clientY); });
-            document.addEventListener('mouseup', () => { if (dragging) { dragging = false; slider.classList.remove('dragging'); } });
-
-            slider.addEventListener('touchstart', (e) => {
-                dragging = true; slider.classList.add('dragging');
-                seek(e.touches[0].clientY); e.preventDefault();
-            }, { passive: false });
-            document.addEventListener('touchmove', (e) => {
-                if (!dragging || !e.touches.length) return;
-                seek(e.touches[0].clientY); e.preventDefault();
-            }, { passive: false });
-            document.addEventListener('touchend', () => {
-                if (dragging) { dragging = false; slider.classList.remove('dragging'); }
-            });
-
-            return { update };
-        }
-
-        const docPageSlider = setupPageSlider('docPageSlider', 'docPageSliderThumb', docV2, () => renderDocPage());
-        const pdfPageSlider = setupPageSlider('pdfPageSlider', 'pdfPageSliderThumb', pdfV,   () => renderPdfPage());
-
-        // ============================================================
-        // === Свайпы у границ документа на Android ===
-        // ============================================================
         function attachSwipePaging(scrollEl, nextFn, prevFn) {
             if (!scrollEl || !IS_TOUCH) return;
-            let startY = 0, startT = 0;
+            let sx = 0, sy = 0, st = 0, sLeft = 0, multi = false;
+
             scrollEl.addEventListener('touchstart', (e) => {
-                if (e.touches.length !== 1) return;
-                startY = e.touches[0].clientY;
-                startT = Date.now();
+                if (e.touches.length !== 1) { multi = true; return; }
+                multi = false;
+                sx = e.touches[0].clientX; sy = e.touches[0].clientY;
+                st = Date.now(); sLeft = scrollEl.scrollLeft;
             }, { passive: true });
+
             scrollEl.addEventListener('touchend', (e) => {
+                if (multi) { if (e.touches.length === 0) multi = false; return; }
                 if (e.changedTouches.length !== 1) return;
-                const deltaY = startY - e.changedTouches[0].clientY;
-                if (Date.now() - startT > 600 || Math.abs(deltaY) < 60) return;
-                const atBottom = scrollEl.scrollTop + scrollEl.clientHeight >= scrollEl.scrollHeight - 5;
-                const atTop    = scrollEl.scrollTop <= 5;
-                if (deltaY > 0 && atBottom) nextFn();
-                else if (deltaY < 0 && atTop) prevFn();
+                const t = e.changedTouches[0];
+                const dx = t.clientX - sx, dy = t.clientY - sy, dt = Date.now() - st;
+                const adx = Math.abs(dx), ady = Math.abs(dy);
+                if (dt < 700 && adx >= 60 && adx > ady * 1.5) {
+                    const canPanX = scrollEl.scrollWidth > scrollEl.clientWidth + 4;
+                    const movedX  = Math.abs(scrollEl.scrollLeft - sLeft) > 2;
+                    const atLeft  = scrollEl.scrollLeft <= 2;
+                    const atRight = scrollEl.scrollLeft + scrollEl.clientWidth >= scrollEl.scrollWidth - 2;
+                    if (dx < 0 && (!canPanX || (atRight && !movedX))) nextFn();
+                    else if (dx > 0 && (!canPanX || (atLeft && !movedX))) prevFn();
+                }
             }, { passive: true });
         }
         attachSwipePaging(document.getElementById('docScroll'), docNextPage, docPrevPage);
         attachSwipePaging(document.getElementById('pdfScroll'), pdfNext,     pdfPrev);
 
-        // ============================================================
-        // === ANDROID/TOUCH: дополнительные инициализации ============
-        // ============================================================
+        cvAttachInput(document.getElementById('pdfScroll'), pdfV, {
+            isOpen: () => document.getElementById('pdfViewer').classList.contains('show'),
+            close: closePdfViewer, zoom: pdfZoom, onScroll: pdfUpdateVisible
+        });
+        cvAttachInput(document.getElementById('docScroll'), docV2, {
+            isOpen: () => document.getElementById('docViewer').classList.contains('show'),
+            close: closeDocViewer, zoom: docZoom, onScroll: docUpdateCurrent
+        });
 
         (function initTouchScrollSync() {
             if (!IS_TOUCH) return;
@@ -6402,7 +6584,7 @@
             let lpTimer = null;
             document.addEventListener('touchstart', (e) => {
                 if (e.touches.length !== 1) return;
-                if (e.target.closest('.draggable, .btn, button, input, textarea, select, .item-toolbar, .text-toolbar, #creaturePanel, .sm-box, .add-menu, .viewer, .pdf-viewer, .doc-viewer, #introScreen, #sizePopup, #passwordModal, #confirmModal, .side-arrow, .nav-dots, .page-slider')) return;
+                if (e.target.closest('.draggable, .btn, button, input, textarea, select, .item-toolbar, .text-toolbar, #creaturePanel, .sm-box, .add-menu, .viewer, .pdf-viewer, .doc-viewer, #introScreen, #sizePopup, #passwordModal, #confirmModal, .side-arrow, .nav-dots')) return;
                 lpTimer = setTimeout(() => {
                     if (state.mode === 'edit') {
                         toggleSizePopup();
@@ -6433,7 +6615,6 @@
             });
         })();
 
-        // === ANDROID: сброс «залипающего» фокуса после тапа ===
         if (IS_TOUCH) {
             document.addEventListener('touchend', function (e) {
                 const el = e.target;
@@ -6449,6 +6630,103 @@
                 }
             }, { passive: true, capture: true });
         }
+
+        (function initTwoFingerGestures() {
+            if (!IS_TOUCH) return;
+            let startT1 = null, startT2 = null;
+            let lastT1 = null, lastT2 = null;
+            let startTime = 0;
+            let twoActive = false;
+            let cancelled = false;
+
+            document.addEventListener('pointerdown', (e) => {
+                if (window.__multiTouchActive) {
+                    e.stopImmediatePropagation();
+                    e.preventDefault();
+                }
+            }, { capture: true });
+
+            document.addEventListener('touchstart', (e) => {
+                if (e.touches.length >= 2) {
+                    clearTimeout(window.__mtReset);
+                    window.__multiTouchActive = true;
+                    if (!cancelled) {
+                        cancelled = true;
+                        try {
+                            document.dispatchEvent(new PointerEvent('pointerup', { bubbles: true, cancelable: true }));
+                        } catch (err) {
+                            const ev = document.createEvent('Event');
+                            ev.initEvent('pointerup', true, true);
+                            document.dispatchEvent(ev);
+                        }
+                        setTimeout(() => { cancelled = false; }, 40);
+                    }
+                }
+            }, { capture: true, passive: true });
+
+            document.addEventListener('touchstart', (e) => {
+                if (e.touches.length !== 2) return;
+                twoActive = true;
+                startTime = Date.now();
+                startT1 = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+                startT2 = { x: e.touches[1].clientX, y: e.touches[1].clientY };
+                lastT1 = { x: startT1.x, y: startT1.y };
+                lastT2 = { x: startT2.x, y: startT2.y };
+            }, { capture: true, passive: true });
+
+            document.addEventListener('touchmove', (e) => {
+                if (!twoActive || e.touches.length !== 2) return;
+                lastT1 = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+                lastT2 = { x: e.touches[1].clientX, y: e.touches[1].clientY };
+                if (e.cancelable) e.preventDefault();
+            }, { capture: true, passive: false });
+
+            document.addEventListener('touchend', (e) => {
+                if (e.touches.length === 0) {
+                    clearTimeout(window.__mtReset);
+                    window.__mtReset = setTimeout(() => { window.__multiTouchActive = false; }, 300);
+                }
+                if (!twoActive) return;
+                if (e.touches.length >= 2) return;
+
+                const dt = Date.now() - startTime;
+                const dx1 = lastT1.x - startT1.x, dy1 = lastT1.y - startT1.y;
+                const dx2 = lastT2.x - startT2.x, dy2 = lastT2.y - startT2.y;
+                const avgDx = (dx1 + dx2) / 2;
+                const avgDy = (dy1 + dy2) / 2;
+                const totalMove = Math.hypot(avgDx, avgDy);
+                twoActive = false;
+
+                if (dt < 320 && totalMove < 22) {
+                    if (state.mode !== 'view') return;
+                    const mx = (startT1.x + startT2.x) / 2;
+                    const my = (startT1.y + startT2.y) / 2;
+                    const el = document.elementFromPoint(mx, my);
+                    const drag = el && el.closest && el.closest('.draggable');
+                    if (drag) {
+                        drag.dispatchEvent(new MouseEvent('dblclick', { bubbles: true, cancelable: true }));
+                    }
+                    return;
+                }
+
+                if (Math.abs(avgDx) > 60 && Math.abs(avgDx) > Math.abs(avgDy) * 1.4) {
+                    if (document.getElementById('viewer').classList.contains('show')) return;
+                    const pdfOpen = document.getElementById('pdfViewer').classList.contains('show');
+                    const docOpen = document.getElementById('docViewer').classList.contains('show');
+                    if (pdfOpen) { avgDx < 0 ? pdfNext() : pdfPrev(); }
+                    else if (docOpen) { avgDx < 0 ? docNextPage() : docPrevPage(); }
+                    else { navSlide(avgDx < 0 ? 1 : -1); }
+                }
+            }, { capture: true, passive: true });
+
+            document.addEventListener('touchcancel', (e) => {
+                if (e.touches.length === 0) {
+                    clearTimeout(window.__mtReset);
+                    window.__mtReset = setTimeout(() => { window.__multiTouchActive = false; }, 300);
+                }
+                twoActive = false;
+            }, { capture: true, passive: true });
+        })();
     </script>
 
     <!-- ======================== ИНТЕГРАЦИЯ WEBMEJI ======================== -->
