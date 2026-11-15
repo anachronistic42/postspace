@@ -405,6 +405,8 @@
         .notification { position: fixed; top: 70px; right: 20px; background: rgba(13, 10, 6, 0.95); border: 1px solid var(--accent2); color: var(--text); padding: 12px 24px; border-radius: 6px; font-family: 'Courier New', monospace; font-size: 14px; z-index: 9999; box-shadow: 0 8px 30px rgba(0, 0, 0, 0.6); backdrop-filter: blur(6px); animation: notificationFade 0.3s ease; pointer-events: none; }
         .notification.error { border-color: var(--accent2); color: #ffa07a; }
         .notification.success { border-color: var(--accent); color: var(--text); }
+        .save-toast { position: fixed; top: 60px; left: 0; background: rgba(13, 10, 6, 0.95); border: 1px solid var(--accent); color: var(--text); padding: 6px 12px; border-radius: 4px; font-family: 'Courier New', monospace; font-size: 12px; letter-spacing: 0.5px; white-space: nowrap; z-index: 9999; box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5); pointer-events: none; opacity: 0; transform: translateY(-4px); transition: opacity 0.2s ease, transform 0.2s ease; }
+        .save-toast.show { opacity: 1; transform: translateY(0); }
         @keyframes notificationFade { from { opacity: 0; transform: translateX(40px); } to { opacity: 1; transform: translateX(0); } }
         .pdf-viewer, .doc-viewer { position: fixed; inset: 0; z-index: 450; background: rgba(8, 6, 4, 0.96); display: none; flex-direction: column; }
         .pdf-viewer.show, .doc-viewer.show { display: flex; animation: viewerFade 0.3s ease; }
@@ -800,6 +802,7 @@
                     </svg>
                 </button>
                 <button id="saveBtn">СОХРАНИТЬ</button>
+                <button id="saveAsBtn">СОХРАНИТЬ КАК</button>
                 <button id="loadBtn">ЗАГРУЗИТЬ</button>
             </div>
         </div>
@@ -1189,16 +1192,19 @@
             const tbRight = document.querySelector('.topbar-right');
             const saveBtnEl = document.getElementById('saveBtn');
             const loadBtnEl = document.getElementById('loadBtn');
+            const saveAsBtnEl = document.getElementById('saveAsBtn');
 
             charsBtn.style.display = '';
             dots.style.display = '';
             if (window.__EMBEDDED_PROJECT__ && state.mode === 'view' && !editorAccessGranted) {
                 tbCenter.style.display = 'none';
                 if (saveBtnEl) saveBtnEl.style.display = 'none';
+                if (saveAsBtnEl) saveAsBtnEl.style.display = 'none';
                 if (loadBtnEl) loadBtnEl.style.display = 'none';
             } else {
                 tbCenter.style.display = '';
                 if (saveBtnEl) saveBtnEl.style.display = '';
+                if (saveAsBtnEl) saveAsBtnEl.style.display = '';
                 if (loadBtnEl) loadBtnEl.style.display = '';
             }
             tbRight.classList.remove('ui-hidden');
@@ -4245,19 +4251,82 @@
             return failed;
         }
 
-        async function saveProject() {
+        // Дескриптор файла, в который «Сохранить» тихо перезаписывает проект
+        // (File System Access API: Chrome / Edge на компьютере). Без него — обычное скачивание.
+        let projectFileHandle = null;
+        const FS_SAVE_SUPPORTED = typeof window.showSaveFilePicker === 'function';
+        const PROJECT_FILE_TYPES = [{ description: 'Проект Постпространства', accept: { 'application/json': ['.pstspc'] } }];
+
+        function getProjectFileBaseName() {
+            let name = (state.projectTitle || 'postprostranstvo').replace(/[\\/:*?"<>|]/g, '_').trim();
+            return name || 'postprostranstvo';
+        }
+
+        async function hasWritePermission(handle) {
+            const opts = { mode: 'readwrite' };
+            if ((await handle.queryPermission(opts)) === 'granted') return true;
+            return (await handle.requestPermission(opts)) === 'granted';
+        }
+
+        function showSaveToast(text = 'Проект сохранён') {
+            const btn = document.getElementById('saveBtn');
+            const r = btn ? btn.getBoundingClientRect() : null;
+            if (!r || !r.width) { showNotification(text, 'success', 2000); return; }
+            let el = document.getElementById('saveToast');
+            if (!el) {
+                el = document.createElement('div');
+                el.id = 'saveToast';
+                el.className = 'save-toast';
+                document.body.appendChild(el);
+            }
+            el.textContent = text;
+            el.style.top = (r.bottom + 6) + 'px';
+            el.classList.add('show');
+            const w = el.offsetWidth;
+            el.style.left = Math.max(8, Math.min(r.left + r.width / 2 - w / 2, window.innerWidth - w - 8)) + 'px';
+            clearTimeout(el._hideTimer);
+            el._hideTimer = setTimeout(() => el.classList.remove('show'), 2000);
+        }
+
+        // saveAs = true  — всегда спросить, куда сохранить;
+        // saveAs = false — тихо перезаписать текущий файл (если файла ещё нет — спросит один раз).
+        async function saveProject(saveAs = false) {
             const slidesForSave = JSON.parse(JSON.stringify(state.slides));
             if (!(await ensureMediaAccess(slidesForSave))) {
                 showNotification('Сохранение отменено: нет доступа к папке media', 'error', 4000);
                 return;
             }
+
+            // Файл выбираем сразу, пока действует «жест пользователя» (до долгой обработки медиа)
+            let handle = null;
+            if (FS_SAVE_SUPPORTED) {
+                if (!saveAs && projectFileHandle) {
+                    try { if (await hasWritePermission(projectFileHandle)) handle = projectFileHandle; }
+                    catch (err) { console.error(err); projectFileHandle = null; }
+                }
+                if (!handle) {
+                    try {
+                        handle = await window.showSaveFilePicker({
+                            suggestedName: getProjectFileBaseName() + '.pstspc',
+                            types: PROJECT_FILE_TYPES
+                        });
+                    } catch (err) {
+                        if (err && err.name === 'AbortError') return;
+                        console.error(err);
+                        handle = null; // не получилось — сохраним обычным скачиванием
+                    }
+                }
+            }
+
             const overlay = document.getElementById('loadingOverlay');
             const loaderText = overlay ? overlay.querySelector('.loader-text') : null;
             const originalText = loaderText ? loaderText.textContent : '';
-            try {
+            // Оверлей показываем, только если сохранение затянулось — иначе оно тихое
+            const overlayTimer = setTimeout(() => {
                 if (overlay) overlay.classList.add('show');
                 if (loaderText) loaderText.textContent = 'Сохранение проекта...';
-
+            }, 500);
+            try {
                 const failed = await embedExternalMediaInSlides(slidesForSave);
                 if (failed) showNotification(`Не удалось встроить файлов: ${failed}. Они останутся ссылками`, 'error', 7000);
 
@@ -4272,22 +4341,42 @@
                     editorPassword: editorPassword || '',
                     imgEffectsLevel: imgEffectsLevel
                 });
-                const a = document.createElement('a');
-                a.href = URL.createObjectURL(new Blob([data], { type: 'application/json' }));
-                let filename = (state.projectTitle || "postprostranstvo").replace(/[\\/:*?"<>|]/g, '_').trim();
-                if (!filename) filename = "postprostranstvo";
-                a.download = filename + ".pstspc";
-                a.click();
+
+                if (handle) {
+                    const writable = await handle.createWritable();
+                    try {
+                        await writable.write(new Blob([data], { type: 'application/json' }));
+                        await writable.close();
+                    } catch (werr) {
+                        try { await writable.abort(); } catch (e) {}
+                        throw werr;
+                    }
+                    projectFileHandle = handle;
+                } else {
+                    const a = document.createElement('a');
+                    a.href = URL.createObjectURL(new Blob([data], { type: 'application/json' }));
+                    a.download = getProjectFileBaseName() + '.pstspc';
+                    a.click();
+                    setTimeout(() => URL.revokeObjectURL(a.href), 10000);
+                }
+                showSaveToast('Проект сохранён');
             } catch (err) {
                 console.error(err);
-                if (typeof showNotification === 'function') showNotification('Ошибка при сохранении проекта', 'error', 3000);
+                if (handle && err && (err.name === 'NotFoundError' || err.name === 'NotAllowedError')) {
+                    projectFileHandle = null;
+                    showNotification('Файл недоступен. Нажмите «Сохранить как»', 'error', 4000);
+                } else {
+                    showNotification('Ошибка при сохранении проекта', 'error', 3000);
+                }
             } finally {
+                clearTimeout(overlayTimer);
                 if (overlay) overlay.classList.remove('show');
                 if (loaderText) loaderText.textContent = originalText;
             }
         }
 
         function processLoadedData(data, showOverlay, forceView) {
+            projectFileHandle = null; // новый проект — старый файл-цель больше не подходит
             state.slides = data.slides;
             uid = data.uid || 1;
             state.projectTitle = data.projectTitle || 'ПОСТПРОСТРАНСТВО';
@@ -4347,7 +4436,7 @@
             updateSizePopupIfVisible();
         }
 
-        function loadProject(file, showOverlay = false, forceView = true) {
+        function loadProject(file, showOverlay = false, forceView = true, fileHandle = null) {
             const overlay = document.getElementById('loadingOverlay');
             if (showOverlay) overlay.classList.add('show');
             const reader = new FileReader();
@@ -4355,6 +4444,7 @@
                 try {
                     const data = JSON.parse(e.target.result);
                     processLoadedData(data, showOverlay, forceView);
+                    projectFileHandle = fileHandle || null; // «Сохранить» будет перезаписывать этот файл
                     if (showOverlay) setTimeout(() => overlay.classList.remove('show'), 400);
                 } catch (err) {
                     if (showOverlay) overlay.classList.remove('show');
@@ -5543,7 +5633,8 @@
 
         document.getElementById('leftArrow').onclick = () => navSlide(-1);
         document.getElementById('rightArrow').onclick = () => navSlide(1);
-        document.getElementById('saveBtn').onclick = saveProject;
+        document.getElementById('saveBtn').onclick = () => saveProject(false);
+        document.getElementById('saveAsBtn').onclick = () => saveProject(true);
 
         const fullscreenBtn = document.getElementById('fullscreenBtn');
         if (fullscreenBtn) {
@@ -5663,7 +5754,25 @@
         titleSpan.addEventListener('blur', () => { state.projectTitle = titleSpan.innerText; autoSave(); updateSizePopupIfVisible(); });
 
         const loadBtn = document.getElementById('loadBtn');
-        if (loadBtn) loadBtn.onclick = () => document.getElementById('loadFileInput').click();
+        if (loadBtn) loadBtn.onclick = async () => {
+            // Где доступно — открываем через системный диалог, чтобы «Сохранить» могло перезаписывать этот же файл
+            if (typeof window.showOpenFilePicker === 'function') {
+                try {
+                    const [h] = await window.showOpenFilePicker({
+                        types: [{ description: 'Проект Постпространства', accept: { 'application/json': ['.pstspc', '.json'] } }]
+                    });
+                    const file = await h.getFile();
+                    const fromIntro = !!window._introLoading;
+                    loadProject(file, !fromIntro, true, h);
+                    window._introLoading = false;
+                    return;
+                } catch (err) {
+                    if (err && err.name === 'AbortError') return;
+                    console.error(err);
+                }
+            }
+            document.getElementById('loadFileInput').click();
+        };
         const fileInput = document.getElementById('loadFileInput');
         fileInput.onchange = (e) => {
             if (e.target.files && e.target.files[0]) {
@@ -6423,11 +6532,22 @@
             const files = Array.from(e.dataTransfer.files);
             const projectFile = files.find(f => f.name.endsWith('.pstspc') || f.name.endsWith('.json') || f.type === 'application/json');
             if (projectFile) {
+                // дескриптор нужно запросить синхронно, внутри события drop
+                let handlePromise = null;
+                for (const it of Array.from(e.dataTransfer.items || [])) {
+                    if (it.kind === 'file' && typeof it.getAsFileSystemHandle === 'function') {
+                        const f = it.getAsFile();
+                        if (f && f.name === projectFile.name) { handlePromise = it.getAsFileSystemHandle(); break; }
+                    }
+                }
                 const reader = new FileReader();
-                reader.onload = (ev) => {
+                reader.onload = async (ev) => {
+                    let h = null;
+                    try { h = handlePromise ? await handlePromise : null; } catch (err) {}
+                    if (h && h.kind !== 'file') h = null;
                     try {
                         const data = JSON.parse(ev.target.result);
-                        if (data.slides) { loadProject(projectFile, true, true); return; }
+                        if (data.slides) { loadProject(projectFile, true, true, h); return; }
                     } catch (err) {}
                     showNotification('Файл не является проектом Постпространства', 'error', 3000);
                 };
