@@ -609,6 +609,28 @@
         }
         .icon-btn:active { transform: scale(.93); }
 
+        /* подсказка-окошко рядом с иконкой */
+        .tip-btn { position: relative; }
+        .tip-btn::after {
+            content: attr(data-tip);
+            position: absolute; top: calc(100% + 8px); right: 0;
+            background: rgba(13, 10, 6, 0.95); border: 1px solid var(--accent); color: var(--text);
+            padding: 5px 10px; border-radius: 4px;
+            font-family: 'Courier New', monospace; font-size: 12px; letter-spacing: 0.5px; line-height: 1.2;
+            white-space: nowrap; z-index: 9999; box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+            pointer-events: none; opacity: 0; transform: translateY(-4px);
+            transition: opacity .15s ease, transform .15s ease;
+        }
+        .tip-btn:hover::after { opacity: 1; transform: translateY(0); transition-delay: .25s; }
+        @media (hover: none) { .tip-btn::after { display: none; } }
+
+        /* уровень 3: скрыты глаз, стрелки и точки перелистывания */
+        body.ui-lvl3 #eyeToggleBtn,
+        body.ui-lvl3 .side-arrow,
+        body.ui-lvl3 #navDots { display: none !important; }
+        body.ui-lvl3 .scroll-container { scrollbar-width: none; }
+        body.ui-lvl3 .scroll-container::-webkit-scrollbar { display: none; height: 0; }
+
         html.is-touch .topbar .icon-btn,
         html.is-touch .topbar .action-buttons .icon-btn {
             height: 26px; width: 32px; min-width: 32px; padding: 0;
@@ -801,9 +823,31 @@
                         <path d="M10 7.8 L12.2 10 L10 12.2 L7.8 10 Z" fill="currentColor" stroke="none"/>
                     </svg>
                 </button>
-                <button id="saveBtn">СОХРАНИТЬ</button>
-                <button id="saveAsBtn">СОХРАНИТЬ КАК</button>
-                <button id="loadBtn">ЗАГРУЗИТЬ</button>
+                <button id="saveBtn" class="icon-btn tip-btn" data-tip="Сохранить" aria-label="Сохранить">
+                    <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"
+                         stroke-linecap="square" aria-hidden="true">
+                        <path d="M3 3 H14.5 L17 5.5 V17 H3 Z"/>
+                        <path d="M6 3 V7.5 H12.5 V3"/>
+                        <path d="M6 17 V12 H14 V17"/>
+                        <path d="M10 13.2 L11 14.5 L10 15.8 L9 14.5 Z" fill="currentColor" stroke="none"/>
+                    </svg>
+                </button>
+                <button id="saveAsBtn" class="icon-btn tip-btn" data-tip="Сохранить как" aria-label="Сохранить как">
+                    <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"
+                         stroke-linecap="square" aria-hidden="true">
+                        <path d="M2 2.5 H11 L13 4.5 V14 H2 Z"/>
+                        <path d="M4.5 2.5 V6 H9 V2.5"/>
+                        <path d="M4.5 14 V10 H10.5 V14"/>
+                        <path d="M16 12.5 V19.5 M12.5 16 H19.5"/>
+                    </svg>
+                </button>
+                <button id="loadBtn" class="icon-btn tip-btn" data-tip="Открыть" aria-label="Открыть">
+                    <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"
+                         stroke-linecap="square" aria-hidden="true">
+                        <path d="M2.5 4.5 H8 L9.8 6.8 H17.5 V16 H2.5 Z"/>
+                        <path d="M10 10.2 L12.2 12.4 L10 14.6 L7.8 12.4 Z" fill="currentColor" stroke="none"/>
+                    </svg>
+                </button>
             </div>
         </div>
     </div>
@@ -1213,16 +1257,17 @@
                 charsBtn.style.display = 'none';
                 dots.style.display = 'none';
             }
-            if (uiHiddenLevel === 2) {
+            if (uiHiddenLevel >= 2) {
                 tbCenter.style.display = 'none';
                 tbRight.classList.add('ui-hidden');
             }
 
             const eyeBtn = document.getElementById('eyeToggleBtn');
             if (eyeBtn) {
-                eyeBtn.dataset.level = String(uiHiddenLevel);
-                eyeBtn.setAttribute('aria-label', uiHiddenLevel === 2 ? 'Показать интерфейс' : 'Скрыть интерфейс');
+                eyeBtn.dataset.level = String(Math.min(uiHiddenLevel, 2));
+                eyeBtn.setAttribute('aria-label', uiHiddenLevel >= 2 ? 'Показать интерфейс' : 'Скрыть интерфейс');
             }
+            document.body.classList.toggle('ui-lvl3', uiHiddenLevel === 3);
         }
 
         function toggleSizePopup() {
@@ -3964,23 +4009,7 @@
                 f.name.endsWith('.pstspc') || f.name.endsWith('.json') || f.type === 'application/json'
             );
             if (projectFiles.length > 0) {
-                const file = projectFiles[0];
-                const overlay = document.getElementById('loadingOverlay');
-                overlay.classList.add('show');
-                const reader = new FileReader();
-                reader.onload = (ev) => {
-                    try {
-                        const data = JSON.parse(ev.target.result);
-                        if (data.slides) {
-                            processLoadedData(data, true, true);
-                            setTimeout(() => overlay.classList.remove('show'), 400);
-                            updateSizePopupIfVisible();
-                            return;
-                        }
-                    } catch (err) {}
-                    overlay.classList.remove('show');
-                };
-                reader.readAsText(file);
+                openDroppedProject(e.dataTransfer, projectFiles[0]);
                 return;
             }
 
@@ -4456,6 +4485,31 @@
                 alert('Ошибка чтения файла');
             };
             reader.readAsText(file);
+        }
+
+        // Загрузка проекта, перетащенного в окно: берём дескриптор файла,
+        // чтобы «Сохранить» потом тихо перезаписывало этот же файл.
+        // Вызывать синхронно внутри события drop.
+        function openDroppedProject(dt, projectFile) {
+            let handlePromise = null;
+            for (const it of Array.from(dt.items || [])) {
+                if (it.kind === 'file' && typeof it.getAsFileSystemHandle === 'function') {
+                    const f = it.getAsFile();
+                    if (f && f.name === projectFile.name) { handlePromise = it.getAsFileSystemHandle(); break; }
+                }
+            }
+            const reader = new FileReader();
+            reader.onload = async (ev) => {
+                let h = null;
+                try { h = handlePromise ? await handlePromise : null; } catch (err) {}
+                if (h && h.kind !== 'file') h = null;
+                try {
+                    const data = JSON.parse(ev.target.result);
+                    if (data.slides) { loadProject(projectFile, true, true, h); return; }
+                } catch (err) {}
+                showNotification('Файл не является проектом Постпространства', 'error', 3000);
+            };
+            reader.readAsText(projectFile);
         }
 
         function takeFullSnapshot() { fullSnapshotSlides = JSON.parse(JSON.stringify(state.slides)); }
@@ -5821,7 +5875,14 @@
         document.getElementById('gearSettingsBtn').addEventListener('click', handleAltQ);
         document.getElementById('eyeToggleBtn').addEventListener('click', () => {
             if (state.mode !== 'view') return;
-            uiHiddenLevel = (uiHiddenLevel + 1) % 3;
+            uiHiddenLevel = (uiHiddenLevel + 1) % 4;
+            applyUiHiddenLevel();
+        });
+        // на уровне 3 любой клик по верхней панели возвращает всё скрытое
+        document.querySelector('.topbar').addEventListener('click', (e) => {
+            if (state.mode !== 'view' || uiHiddenLevel !== 3) return;
+            if (e.target.closest('#eyeToggleBtn')) return;
+            uiHiddenLevel = 0;
             applyUiHiddenLevel();
         });
 
@@ -5837,7 +5898,7 @@
 
             if (state.mode === 'view' && !isEditable && (e.key.toLowerCase() === 'f' || e.key.toLowerCase() === 'а')) {
                 e.preventDefault();
-                uiHiddenLevel = (uiHiddenLevel + 1) % 3;
+                uiHiddenLevel = (uiHiddenLevel + 1) % 4;
                 applyUiHiddenLevel();
                 return;
             }
@@ -6532,26 +6593,7 @@
             const files = Array.from(e.dataTransfer.files);
             const projectFile = files.find(f => f.name.endsWith('.pstspc') || f.name.endsWith('.json') || f.type === 'application/json');
             if (projectFile) {
-                // дескриптор нужно запросить синхронно, внутри события drop
-                let handlePromise = null;
-                for (const it of Array.from(e.dataTransfer.items || [])) {
-                    if (it.kind === 'file' && typeof it.getAsFileSystemHandle === 'function') {
-                        const f = it.getAsFile();
-                        if (f && f.name === projectFile.name) { handlePromise = it.getAsFileSystemHandle(); break; }
-                    }
-                }
-                const reader = new FileReader();
-                reader.onload = async (ev) => {
-                    let h = null;
-                    try { h = handlePromise ? await handlePromise : null; } catch (err) {}
-                    if (h && h.kind !== 'file') h = null;
-                    try {
-                        const data = JSON.parse(ev.target.result);
-                        if (data.slides) { loadProject(projectFile, true, true, h); return; }
-                    } catch (err) {}
-                    showNotification('Файл не является проектом Постпространства', 'error', 3000);
-                };
-                reader.readAsText(projectFile);
+                openDroppedProject(e.dataTransfer, projectFile);
             }
         });
 
